@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Générateur d'ILV Boulanger</title>
+  <title>Générateur d'ILV Boulanger - Éditeur</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
     * {
@@ -48,7 +49,7 @@
       align-items: center;
       gap: 6px;
       overflow-x: auto;
-      max-width: 45%;
+      max-width: 40%;
       padding-bottom: 2px;
     }
 
@@ -105,14 +106,14 @@
 
     .header-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .btn-action-head {
       background: #38bdf8;
       color: #0f172a;
       border: none;
-      padding: 9px 14px;
+      padding: 9px 12px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
@@ -127,11 +128,21 @@
       color: white;
     }
 
+    .btn-gallery {
+      background: #e55300;
+      color: white;
+    }
+
+    .btn-gallery:hover {
+      background: #c44600;
+      color: white;
+    }
+
     .btn-print {
       background: #22c55e;
       color: white;
       border: none;
-      padding: 9px 18px;
+      padding: 9px 16px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
@@ -641,7 +652,7 @@
 
     /* Configuration stricte de l'impression */
     @page {
-      margin: 0; /* Supprime les chemins de fichiers, dates et numéros de page */
+      margin: 0;
     }
 
     @media print {
@@ -685,7 +696,7 @@
   <!-- Barre Supérieure -->
   <header>
     <div class="brand-title">
-      <span>🏷️ Générateur d'ILV Boulanger</span>
+      <span>🏷️ Éditeur d'ILV Boulanger</span>
     </div>
 
     <!-- Gestionnaires d'onglets -->
@@ -693,15 +704,18 @@
     <button class="btn-add-tab" id="add-tab-btn" title="Ajouter une nouvelle affiche">+ Nouveau</button>
 
     <div class="header-actions">
+      <button class="btn-action-head btn-gallery" onclick="openGallery()">
+        👁️ Galerie / Aperçus
+      </button>
       <button class="btn-action-head" onclick="saveProjectJSON()">
-        💾 Sauvegarder Projet (.json)
+        💾 Sauvegarder (.json)
       </button>
       <button class="btn-action-head" onclick="document.getElementById('input-project-file').click()">
-        📂 Charger Projet
+        📂 Charger (.json)
       </button>
       <input type="file" id="input-project-file" accept=".json" style="display:none;" onchange="loadProjectJSON(event)">
       <button class="btn-print" onclick="printAllTabs()">
-        <span>🖨️ Imprimer / PDF</span>
+        <span>🖨️ Imprimer Tout</span>
       </button>
     </div>
   </header>
@@ -712,10 +726,10 @@
       
       <!-- Exportation & Importation -->
       <div class="control-section">
-        <h3>Sauvegarde & Fichiers</h3>
+        <h3>Sauvegarde & Navigation</h3>
         <div class="btn-group">
-          <button class="btn-secondary" style="flex:1;" onclick="saveProjectJSON()">💾 Sauvegarder Projet (.json)</button>
-          <button class="btn-secondary" style="flex:1;" onclick="document.getElementById('input-project-file').click()">📂 Charger Projet</button>
+          <button class="btn-secondary" style="flex:1;" onclick="openGallery()">👁️ Galerie de toutes les ILV</button>
+          <button class="btn-secondary" style="flex:1;" onclick="saveProjectJSON()">💾 Sauvegarder Projet</button>
         </div>
       </div>
 
@@ -894,31 +908,25 @@
       <div class="paper-wrapper" id="paper-wrapper">
         <div class="ilv-document format-a4" id="ilv-doc">
           
-          <!-- En-tête Orange Épais -->
           <div class="ilv-header" id="disp-header-box">
             <div class="ilv-header-title" id="disp-header" contenteditable="true">Bons plans</div>
           </div>
 
-          <!-- Bandeau Modèle d'exposition (Rouge) -->
           <div class="ilv-expo-banner" id="disp-expo">
             MODÈLE D'EXPOSITION
           </div>
 
-          <!-- Corps de l'ILV -->
           <div class="ilv-body">
             
             <div class="ilv-main-content">
-              <!-- Zone Image Gauche -->
               <div class="ilv-image-container">
                 <img id="disp-img" src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80" alt="Produit">
               </div>
 
-              <!-- Zone Informations Droite -->
               <div class="ilv-details-container">
                 <div class="ilv-product-title" id="disp-title" contenteditable="true">Description du produit</div>
                 <div class="ilv-product-ref" id="disp-ref" contenteditable="true">1222898</div>
 
-                <!-- Prix Barré -->
                 <div class="ilv-old-price-container">
                   <div class="ilv-old-price-wrapper">
                     <span class="ilv-old-price" id="disp-old-price" contenteditable="true">1299€</span>
@@ -927,13 +935,11 @@
                   <div class="ilv-eco-tax-small" id="disp-eco-small" contenteditable="true">Dont 3.189 d'éco-participation</div>
                 </div>
 
-                <!-- Nouveau Prix -->
                 <div class="ilv-current-price" id="disp-price" contenteditable="true">1100€</div>
                 <div class="ilv-eco-tax-medium" id="disp-eco-med" contenteditable="true">Dont 3.89€ d'éco-participation</div>
               </div>
             </div>
 
-            <!-- Encadré Offre Club Infinity Centré & Structuré -->
             <div class="ilv-infinity-box">
               <div class="ilv-infinity-content">
                 <div class="ilv-infinity-price" id="disp-inf-price" contenteditable="true">779€</div>
@@ -949,7 +955,6 @@
               </div>
             </div>
 
-            <!-- Mentions Légales Exactes -->
             <div class="ilv-legal-footer" id="disp-legal" contenteditable="true">
               - La remise sera déduite de la facture totale pour tout client déjà adhérent à l’assurance Le Club INFINITY ou pour toute nouvelle adhésion à l’assurance Le Club INFINITY réalisée le même jour que l’achat en magasin. Voir conditions, garanties et exclusions dans la notice d’information de l’assurance Le Club INFINITY. Le Club INFINITY est un contrat d’assurance collective de dommages n°4033, souscrit par Boulanger SA au capital de 40 611 564 € - 347 384 570 RCS Lille métropole - Siège social : Avenue de la Motte 59810 LESQUIN ; par l’intermédiaire de Cofidis, SA à directoire et conseil de surveillance au capital social de 67 500 000€ situé Parc de la Haute-Borne, 61 avenue Halley, Villeneuve d’Ascq 59866, immatriculé au RCS de Lille Métropole sous le numéro 325 307 106 et immatriculé auprès de l’ORIAS sous le numéro 07 023 493 en qualité de Courtier d’assurances; auprès de CARDIF Assurances Risques Divers - S.A. au capital de 21 602 240 € - 308 896 547 RCS Paris - Siège social : 1 Boulevard Haussmann 75009 Paris - Entreprise régie par le Code des assurances.
             </div>
@@ -961,7 +966,6 @@
     </div>
   </div>
 
-  <!-- Conteneur global d'impression pour générer toutes les affiches -->
   <div id="print-container"></div>
 
   <script>
@@ -1057,10 +1061,48 @@
     const dispLegal = document.getElementById('disp-legal');
 
     function init() {
+      // Chargement du localStorage ou récupération du paramètre ?tab=ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+
+      const saved = localStorage.getItem('boulanger_ilv_project');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.tabs && parsed.tabs.length > 0) {
+            tabs = parsed.tabs;
+            nextTabId = parsed.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
+            activeTabId = parsed.activeTabId || tabs[0].id;
+          }
+        } catch(e) {
+          console.error("Erreur de lecture du localStorage", e);
+        }
+      }
+
+      if (tabParam && tabs.some(t => t.id == tabParam)) {
+        activeTabId = parseInt(tabParam);
+      }
+
       renderTabs();
       loadTabData(activeTabId);
       setupEventListeners();
       setupClipboardAndDrag();
+    }
+
+    function saveToLocalStorage() {
+      saveCurrentTabData();
+      const projectData = {
+        version: "1.0",
+        activeTabId: activeTabId,
+        nextTabId: nextTabId,
+        tabs: tabs
+      };
+      localStorage.setItem('boulanger_ilv_project', JSON.stringify(projectData));
+    }
+
+    function openGallery() {
+      saveToLocalStorage();
+      window.location.href = 'test1.html';
     }
 
     function renderTabs() {
@@ -1078,14 +1120,14 @@
     }
 
     function switchTab(id) {
-      saveCurrentTabData();
+      saveToLocalStorage();
       activeTabId = id;
       renderTabs();
       loadTabData(id);
     }
 
     function addTab() {
-      saveCurrentTabData();
+      saveToLocalStorage();
       const newTab = {
         id: nextTabId,
         name: `ILV ${nextTabId}`,
@@ -1114,12 +1156,13 @@
       tabs.push(newTab);
       activeTabId = nextTabId;
       nextTabId++;
+      saveToLocalStorage();
       renderTabs();
       loadTabData(activeTabId);
     }
 
     function duplicateCurrentTab() {
-      saveCurrentTabData();
+      saveToLocalStorage();
       const current = tabs.find(t => t.id === activeTabId);
       const duplicated = JSON.parse(JSON.stringify(current));
       duplicated.id = nextTabId;
@@ -1127,6 +1170,7 @@
       tabs.push(duplicated);
       activeTabId = nextTabId;
       nextTabId++;
+      saveToLocalStorage();
       renderTabs();
       loadTabData(activeTabId);
     }
@@ -1138,6 +1182,7 @@
       if (activeTabId === id) {
         activeTabId = tabs[0].id;
       }
+      saveToLocalStorage();
       renderTabs();
       loadTabData(activeTabId);
     }
@@ -1238,7 +1283,6 @@
       const oldP = parseFloat(calcOldPrice.value) || 0;
       dispOldPrice.innerText = `${oldP}€`;
 
-      // Prix Principal
       let finalMainP = 0;
       const modeM = calcModeMain.value;
       const valM = parseFloat(calcValMain.value) || 0;
@@ -1252,7 +1296,6 @@
       }
       dispPrice.innerText = `${Math.round(finalMainP)}€`;
 
-      // Prix Infinity (Remise sur Prix Initial)
       let finalInfP = 0;
       const modeI = calcModeInf.value;
       const valI = parseFloat(calcValInf.value) || 0;
@@ -1267,9 +1310,8 @@
       dispInfPrice.innerText = `${Math.round(finalInfP)}€`;
     }
 
-    /* Génération du HTML complet pour impression multi-onglets */
     function printAllTabs() {
-      saveCurrentTabData();
+      saveToLocalStorage();
       printContainer.innerHTML = '';
 
       tabs.forEach(tab => {
@@ -1333,9 +1375,8 @@
       window.print();
     }
 
-    /* Sauvegarde & Chargement JSON de projet */
     function saveProjectJSON() {
-      saveCurrentTabData();
+      saveToLocalStorage();
       const projectData = {
         version: "1.0",
         activeTabId: activeTabId,
@@ -1364,6 +1405,7 @@
             tabs = projectData.tabs;
             activeTabId = projectData.activeTabId || tabs[0].id;
             nextTabId = projectData.nextTabId || (tabs.length + 1);
+            saveToLocalStorage();
             renderTabs();
             loadTabData(activeTabId);
             alert("Projet ILV chargé avec succès !");
@@ -1378,19 +1420,17 @@
       event.target.value = "";
     }
 
-    // Traitement de l'image
     function handleImageFile(file) {
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e) => {
           dispImg.src = e.target.result;
-          saveCurrentTabData();
+          saveToLocalStorage();
         };
         reader.readAsDataURL(file);
       }
     }
 
-    // Presse-papier (Ctrl+V) & Drag and Drop
     function setupClipboardAndDrag() {
       window.addEventListener('paste', (e) => {
         const items = e.clipboardData.items;
@@ -1430,7 +1470,7 @@
 
       selectFormat.addEventListener('change', (e) => {
         ilvDoc.className = `ilv-document ${e.target.value}`;
-        saveCurrentTabData();
+        saveToLocalStorage();
       });
 
       inputScale.addEventListener('input', (e) => {
@@ -1441,56 +1481,50 @@
 
       paperWrapper.style.transform = `scale(${inputScale.value / 100})`;
 
-      // Événement Modèle d'exposition
       chkExpo.addEventListener('change', (e) => {
         if (e.target.checked) {
           dispExpo.classList.add('active');
         } else {
           dispExpo.classList.remove('active');
         }
-        saveCurrentTabData();
+        saveToLocalStorage();
       });
 
-      // Contrôles En-tête
       headerHeight.addEventListener('input', (e) => {
         valHeaderHeight.innerText = `${e.target.value}%`;
         dispHeaderBox.style.height = `${e.target.value}%`;
-        saveCurrentTabData();
+        saveToLocalStorage();
       });
 
       headerFontSize.addEventListener('input', (e) => {
         valHeaderFont.innerText = `${e.target.value}rem`;
         dispHeader.style.fontSize = `${e.target.value}rem`;
-        saveCurrentTabData();
+        saveToLocalStorage();
       });
 
-      // Calculateur événements
       [calcOldPrice, calcModeMain, calcValMain, calcModeInf, calcValInf].forEach(el => {
         el.addEventListener('input', () => {
           updateCalculations();
-          saveCurrentTabData();
+          saveToLocalStorage();
         });
       });
 
-      // Champs textes
-      ctrlTitle.addEventListener('input', () => { dispTitle.innerText = ctrlTitle.value; saveCurrentTabData(); });
-      ctrlRef.addEventListener('input', () => { dispRef.innerText = ctrlRef.value; saveCurrentTabData(); });
-      ctrlEcoSmall.addEventListener('input', () => { dispEcoSmall.innerText = ctrlEcoSmall.value; saveCurrentTabData(); });
-      ctrlEcoMed.addEventListener('input', () => { dispEcoMed.innerText = ctrlEcoMed.value; saveCurrentTabData(); });
-      ctrlInfHeader.addEventListener('input', () => { dispInfHeader.innerText = ctrlInfHeader.value; saveCurrentTabData(); });
-      ctrlInfEco.addEventListener('input', () => { dispInfEco.innerText = ctrlInfEco.value; saveCurrentTabData(); });
-      ctrlLegal.addEventListener('input', () => { dispLegal.innerText = ctrlLegal.value; saveCurrentTabData(); });
-      inputHeader.addEventListener('input', (e) => { dispHeader.innerText = e.target.value; saveCurrentTabData(); });
+      ctrlTitle.addEventListener('input', () => { dispTitle.innerText = ctrlTitle.value; saveToLocalStorage(); });
+      ctrlRef.addEventListener('input', () => { dispRef.innerText = ctrlRef.value; saveToLocalStorage(); });
+      ctrlEcoSmall.addEventListener('input', () => { dispEcoSmall.innerText = ctrlEcoSmall.value; saveToLocalStorage(); });
+      ctrlEcoMed.addEventListener('input', () => { dispEcoMed.innerText = ctrlEcoMed.value; saveToLocalStorage(); });
+      ctrlInfHeader.addEventListener('input', () => { dispInfHeader.innerText = ctrlInfHeader.value; saveToLocalStorage(); });
+      ctrlInfEco.addEventListener('input', () => { dispInfEco.innerText = ctrlInfEco.value; saveToLocalStorage(); });
+      ctrlLegal.addEventListener('input', () => { dispLegal.innerText = ctrlLegal.value; saveToLocalStorage(); });
+      inputHeader.addEventListener('input', (e) => { dispHeader.innerText = e.target.value; saveToLocalStorage(); });
 
-      // Édition directe
       [dispHeader, dispTitle, dispRef, dispEcoSmall, dispEcoMed, dispInfHeader, dispInfEco, dispLegal].forEach(el => {
         el.addEventListener('blur', () => {
-          saveCurrentTabData();
+          saveToLocalStorage();
           renderTabs();
         });
       });
 
-      // Fichier image
       inputImage.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
           handleImageFile(e.target.files[0]);
@@ -1500,19 +1534,19 @@
       imgZoom.addEventListener('input', () => {
         valZoom.innerText = `${imgZoom.value}%`;
         updateImageTransform();
-        saveCurrentTabData();
+        saveToLocalStorage();
       });
 
       imgX.addEventListener('input', () => {
         valX.innerText = `${imgX.value}px`;
         updateImageTransform();
-        saveCurrentTabData();
+        saveToLocalStorage();
       });
 
       imgY.addEventListener('input', () => {
         valY.innerText = `${imgY.value}px`;
         updateImageTransform();
-        saveCurrentTabData();
+        saveToLocalStorage();
       });
     }
 
