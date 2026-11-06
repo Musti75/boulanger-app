@@ -701,20 +701,20 @@
 
     <!-- Gestionnaires d'onglets -->
     <div class="tabs-container" id="tabs-list"></div>
-    <button class="btn-add-tab" id="add-tab-btn" title="Ajouter une nouvelle affiche">+ Nouveau</button>
+    <button class="btn-add-tab" id="add-tab-btn" type="button" title="Ajouter une nouvelle affiche">+ Nouveau</button>
 
     <div class="header-actions">
-      <button class="btn-action-head btn-gallery" onclick="openGallery()">
+      <button class="btn-action-head btn-gallery" type="button" onclick="openGallery()">
         👁️ Galerie / Aperçus
       </button>
-      <button class="btn-action-head" onclick="saveProjectJSON()">
+      <button class="btn-action-head" type="button" onclick="saveProjectJSON()">
         💾 Sauvegarder (.json)
       </button>
-      <button class="btn-action-head" onclick="document.getElementById('input-project-file').click()">
+      <button class="btn-action-head" type="button" onclick="document.getElementById('input-project-file').click()">
         📂 Charger (.json)
       </button>
       <input type="file" id="input-project-file" accept=".json" style="display:none;" onchange="loadProjectJSON(event)">
-      <button class="btn-print" onclick="printAllTabs()">
+      <button class="btn-print" type="button" onclick="printAllTabs()">
         <span>🖨️ Imprimer Tout</span>
       </button>
     </div>
@@ -728,8 +728,8 @@
       <div class="control-section">
         <h3>Sauvegarde & Navigation</h3>
         <div class="btn-group">
-          <button class="btn-secondary" style="flex:1;" onclick="openGallery()">👁️ Galerie de toutes les ILV</button>
-          <button class="btn-secondary" style="flex:1;" onclick="saveProjectJSON()">💾 Sauvegarder Projet</button>
+          <button class="btn-secondary" type="button" style="flex:1;" onclick="openGallery()">👁️ Galerie de toutes les ILV</button>
+          <button class="btn-secondary" type="button" style="flex:1;" onclick="saveProjectJSON()">💾 Sauvegarder Projet</button>
         </div>
       </div>
 
@@ -897,7 +897,7 @@
       <div class="control-section">
         <h3>Actions Onglet</h3>
         <div class="btn-group">
-          <button class="btn-secondary" style="flex:1;" onclick="duplicateCurrentTab()">📋 Dupliquer la fiche</button>
+          <button class="btn-secondary" type="button" style="flex:1;" onclick="duplicateCurrentTab()">📋 Dupliquer la fiche</button>
         </div>
       </div>
 
@@ -987,7 +987,7 @@
         valMain: 1100,
         modeInf: 'price',
         valInf: 779,
-        ecoSmall: `Dont 3.189 d'éco-participation`,
+        ecoSmall: `Dont 3.89€ d'éco-participation`,
         ecoMed: `Dont 3.89€ d'éco-participation`,
         infHeader: 'Pour tout nouvel adhérent au Club INFINITY*',
         infEco: `Dont 3.89€ d'éco-participation`,
@@ -1061,7 +1061,6 @@
     const dispLegal = document.getElementById('disp-legal');
 
     function init() {
-      // Chargement du localStorage ou récupération du paramètre ?tab=ID
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab');
 
@@ -1126,12 +1125,14 @@
       loadTabData(id);
     }
 
-    function addTab() {
-      saveToLocalStorage();
+    function addTab(e) {
+      if (e) e.preventDefault();
+      saveCurrentTabData();
+      
       const newTab = {
         id: nextTabId,
         name: `ILV ${nextTabId}`,
-        format: selectFormat.value,
+        format: 'format-a4',
         header: 'Bons plans',
         headerHeight: 27,
         headerFontSize: 6.6,
@@ -1143,7 +1144,7 @@
         valMain: 800,
         modeInf: 'price',
         valInf: 600,
-        ecoSmall: `Dont 3.18€ d'éco-participation`,
+        ecoSmall: `Dont 3.89€ d'éco-participation`,
         ecoMed: `Dont 3.89€ d'éco-participation`,
         infHeader: 'Pour tout nouvel adhérent au Club INFINITY*',
         infEco: `Dont 3.89€ d'éco-participation`,
@@ -1153,10 +1154,18 @@
         posX: 0,
         posY: 0
       };
+
       tabs.push(newTab);
       activeTabId = nextTabId;
       nextTabId++;
-      saveToLocalStorage();
+
+      localStorage.setItem('boulanger_ilv_project', JSON.stringify({
+        version: "1.0",
+        activeTabId: activeTabId,
+        nextTabId: nextTabId,
+        tabs: tabs
+      }));
+
       renderTabs();
       loadTabData(activeTabId);
     }
@@ -1224,9 +1233,9 @@
       selectFormat.value = tab.format || 'format-a4';
       ilvDoc.className = `ilv-document ${selectFormat.value}`;
 
-      inputHeader.value = tab.header;
-      headerHeight.value = tab.headerHeight || 27;
-      headerFontSize.value = tab.headerFontSize || 6.6;
+      inputHeader.value = tab.header !== undefined ? tab.header : 'Bons plans';
+      headerHeight.value = tab.headerHeight !== undefined ? tab.headerHeight : 27;
+      headerFontSize.value = tab.headerFontSize !== undefined ? tab.headerFontSize : 6.6;
 
       valHeaderHeight.innerText = `${headerHeight.value}%`;
       valHeaderFont.innerText = `${headerFontSize.value}rem`;
@@ -1241,39 +1250,39 @@
         dispExpo.classList.remove('active');
       }
 
-      ctrlTitle.value = tab.title;
-      ctrlRef.value = tab.ref;
+      ctrlTitle.value = tab.title || '';
+      ctrlRef.value = tab.ref || '';
       
-      calcOldPrice.value = tab.oldPriceVal;
-      calcModeMain.value = tab.modeMain;
-      calcValMain.value = tab.valMain;
-      calcModeInf.value = tab.modeInf;
-      calcValInf.value = tab.valInf;
+      calcOldPrice.value = tab.oldPriceVal !== undefined ? tab.oldPriceVal : 1000;
+      calcModeMain.value = tab.modeMain || 'price';
+      calcValMain.value = tab.valMain !== undefined ? tab.valMain : 800;
+      calcModeInf.value = tab.modeInf || 'price';
+      calcValInf.value = tab.valInf !== undefined ? tab.valInf : 600;
 
-      ctrlEcoSmall.value = tab.ecoSmall;
-      ctrlEcoMed.value = tab.ecoMed;
-      ctrlInfHeader.value = tab.infHeader;
-      ctrlInfEco.value = tab.infEco;
-      ctrlLegal.value = tab.legal;
+      ctrlEcoSmall.value = tab.ecoSmall || '';
+      ctrlEcoMed.value = tab.ecoMed || '';
+      ctrlInfHeader.value = tab.infHeader || '';
+      ctrlInfEco.value = tab.infEco || '';
+      ctrlLegal.value = tab.legal || defaultLegalText;
 
-      dispHeader.innerText = tab.header;
-      dispTitle.innerText = tab.title;
-      dispRef.innerText = tab.ref;
-      dispEcoSmall.innerText = tab.ecoSmall;
-      dispEcoMed.innerText = tab.ecoMed;
-      dispInfHeader.innerText = tab.infHeader;
-      dispInfEco.innerText = tab.infEco;
-      dispLegal.innerText = tab.legal;
+      dispHeader.innerText = tab.header || 'Bons plans';
+      dispTitle.innerText = tab.title || '';
+      dispRef.innerText = tab.ref || '';
+      dispEcoSmall.innerText = tab.ecoSmall || '';
+      dispEcoMed.innerText = tab.ecoMed || '';
+      dispInfHeader.innerText = tab.infHeader || '';
+      dispInfEco.innerText = tab.infEco || '';
+      dispLegal.innerText = tab.legal || defaultLegalText;
 
-      dispImg.src = tab.imgSrc;
+      dispImg.src = tab.imgSrc || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80';
 
-      imgZoom.value = tab.zoom;
-      imgX.value = tab.posX;
-      imgY.value = tab.posY;
+      imgZoom.value = tab.zoom !== undefined ? tab.zoom : 100;
+      imgX.value = tab.posX !== undefined ? tab.posX : 0;
+      imgY.value = tab.posY !== undefined ? tab.posY : 0;
 
-      valZoom.innerText = `${tab.zoom}%`;
-      valX.innerText = `${tab.posX}px`;
-      valY.innerText = `${tab.posY}px`;
+      valZoom.innerText = `${imgZoom.value}%`;
+      valX.innerText = `${imgX.value}px`;
+      valY.innerText = `${imgY.value}px`;
 
       updateCalculations();
       updateImageTransform();
@@ -1401,16 +1410,28 @@
       reader.onload = (e) => {
         try {
           const projectData = JSON.parse(e.target.result);
-          if (projectData.tabs && Array.isArray(projectData.tabs)) {
+          if (projectData.tabs && Array.isArray(projectData.tabs) && projectData.tabs.length > 0) {
             tabs = projectData.tabs;
             activeTabId = projectData.activeTabId || tabs[0].id;
-            nextTabId = projectData.nextTabId || (tabs.length + 1);
-            saveToLocalStorage();
+            
+            if (!tabs.some(t => t.id === activeTabId)) {
+              activeTabId = tabs[0].id;
+            }
+
+            nextTabId = projectData.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
+
+            localStorage.setItem('boulanger_ilv_project', JSON.stringify({
+              version: "1.0",
+              activeTabId: activeTabId,
+              nextTabId: nextTabId,
+              tabs: tabs
+            }));
+
             renderTabs();
             loadTabData(activeTabId);
             alert("Projet ILV chargé avec succès !");
           } else {
-            alert("Fichier JSON invalide.");
+            alert("Fichier JSON invalide ou vide.");
           }
         } catch (err) {
           alert("Erreur lors de la lecture du fichier JSON.");
@@ -1466,7 +1487,7 @@
     }
 
     function setupEventListeners() {
-      addTabBtn.addEventListener('click', addTab);
+      addTabBtn.addEventListener('click', (e) => addTab(e));
 
       selectFormat.addEventListener('change', (e) => {
         ilvDoc.className = `ilv-document ${e.target.value}`;
