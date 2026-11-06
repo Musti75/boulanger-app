@@ -68,6 +68,9 @@
     .btn-editor { background: #e55300; color: white; }
     .btn-editor:hover { background: #c44600; }
 
+    .btn-tuto { background: #0284c7; color: white; }
+    .btn-tuto:hover { background: #0369a1; }
+
     .btn-action { background: #38bdf8; color: #0f172a; }
     .btn-action:hover { background: #0284c7; color: white; }
 
@@ -373,6 +376,9 @@
       <span>🏷️ Galerie des ILV (Toutes les fiches)</span>
     </div>
     <div class="header-actions">
+      <button class="btn btn-tuto" onclick="openTuto()">
+        📖 Tutoriel / Aide
+      </button>
       <button class="btn btn-editor" onclick="openTabInEditor()">
         ✏️ Mode Éditeur
       </button>
@@ -471,6 +477,11 @@
         tabs: tabs
       };
       localStorage.setItem('boulanger_ilv_project', JSON.stringify(projectData));
+    }
+
+    function openTuto() {
+      saveToLocalStorage();
+      window.location.href = 'tuto_visuel.html';
     }
 
     function renderGrid() {
