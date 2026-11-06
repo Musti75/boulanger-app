@@ -138,6 +138,16 @@
       color: white;
     }
 
+    .btn-tuto {
+      background: #0284c7;
+      color: white;
+    }
+
+    .btn-tuto:hover {
+      background: #0369a1;
+      color: white;
+    }
+
     .btn-print {
       background: #22c55e;
       color: white;
@@ -704,6 +714,9 @@
     <button class="btn-add-tab" id="add-tab-btn" type="button" title="Ajouter une nouvelle affiche">+ Nouveau</button>
 
     <div class="header-actions">
+      <button class="btn-action-head btn-tuto" type="button" onclick="openTuto()">
+        📖 Tutoriel / Aide
+      </button>
       <button class="btn-action-head btn-gallery" type="button" onclick="openGallery()">
         👁️ Galerie / Aperçus
       </button>
@@ -1102,6 +1115,11 @@
     function openGallery() {
       saveToLocalStorage();
       window.location.href = 'test1.html';
+    }
+
+    function openTuto() {
+      saveToLocalStorage();
+      window.location.href = 'tuto_visuel.html';
     }
 
     function renderTabs() {
