@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Promos & Opérations - Dark Mode</title>
+    <!-- Police Google Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #090D16;
+            --surface: #111827;
+            --surface-card: #1E293B;
+            --surface-hover: #334155;
+            
+            --primary: #6366F1;
+            --primary-hover: #4F46E5;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --primary-light: rgba(99, 102, 241, 0.15);
+            
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --border-subtle: #1E293B;
+            
+            --highlight-bg: #854D0E;
+            --highlight-text: #FEF08A;
+            
+            --radius-xl: 20px;
+            --radius-lg: 14px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            
+            --shadow-md: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1650px;
+            margin: 0 auto;
+        }
+
+        /* En-tête */
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .brand-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #A5B4FC 0%, #6366F1 50%, #818CF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.2rem;
+            font-weight: 500;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--surface-card);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .stat-card .label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card .value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #818CF8;
+        }
+
+        /* Barre de Recherche */
+        .search-card {
+            background: var(--surface);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-wrapper svg {
+            position: absolute;
+            left: 1.25rem;
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-muted);
+            fill: none;
+            transition: stroke 0.2s;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 1.1rem 1rem 1.1rem 3.5rem;
+            font-size: 1.1rem;
+            font-family: inherit;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            outline: none;
+            transition: all 0.25s ease;
+            background: #0F172A;
+            color: var(--text-main);
+        }
+
+        .search-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+            background: #1E293B;
+        }
+
+        .search-wrapper input:focus + svg {
+            stroke: var(--primary);
+        }
+
+        .search-info {
+            margin-top: 0.75rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Onglets */
+        .tabs-nav {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.4rem;
+            scrollbar-width: thin;
+        }
+
+        .tab-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.75rem 1.3rem;
+            border-radius: var(--radius-lg);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--text-main);
+            background: var(--surface-card);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .tab-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.1rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+        }
+
+        /* Sections de Tableaux */
+        .results-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sheet-section {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .sheet-header {
+            background: #1E293B;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sheet-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #A5B4FC;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .sheet-count {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818CF8;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 60vh;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #0F172A;
+            padding: 1rem 1.4rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 0.95rem 1.4rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:nth-child(even) td {
+            background-color: rgba(255, 255, 255, 0.015);
+        }
+
+        tbody tr:hover td {
+            background-color: var(--surface-hover) !important;
+        }
+
+        /* Surbrillance */
+        mark {
+            background-color: var(--highlight-bg);
+            color: var(--highlight-text);
+            padding: 0.15em 0.35em;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* Liens ILV */
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            background: var(--primary-light);
+            color: #A5B4FC;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .btn-link:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        /* Chargement & Aucun résultat */
+        #stateView, .no-results {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+        }
+
+        .loader-ring {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.75s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+            margin: 0 auto 1.25rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <div>
+            <h1 class="brand-title">Hub Promos & Opérations</h1>
+            <p class="brand-subtitle">Recherche instantanée multi-onglets conservant la structure des tableaux</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card">
+                <span class="label">Résultats cumulés</span>
+                <span class="value" id="statCount">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barre d'Onglets -->
+    <div class="tabs-nav" id="tabsNav"></div>
+
+    <!-- Barre de Recherche -->
+    <div class="search-card">
+        <div class="search-wrapper">
+            <svg viewBox="0 0 24 24" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Rechercher (ex: Samsung, PC Gamer, Remise 100€)...">
+        </div>
+        <div class="search-info">
+            ⚡ La recherche trouve instantanément les correspondances dans tous les onglets en maintenant les colonnes propres à chacun.
+        </div>
+    </div>
+
+    <!-- Zone d'affichage dynamique -->
+    <div id="stateView">
+        <div class="loader-ring"></div>
+        <p style="font-weight: 600;">Chargement des données depuis Google Sheets...</p>
+    </div>
+
+    <div class="results-wrapper" id="resultsWrapper" style="display: none;"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/a/macros/boulanger.com/s/AKfycbzhn9yax8_OITAvJOaZ-kJM_EWbE1qUuzrg87mcV02avG06azDb8FEh7o8TmoeLtJiACA/exec';
+
+    let sheetsData = {};
+    let parsedSheets = {}; 
+    let activeSheetName = 'ALL';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchData();
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            handleSearch(e.target.value);
+        });
+    });
+
+    function fetchData() {
+        const script = document.createElement('script');
+        
+        window.handleGoogleData = function(data) {
+            if (data && data.error) {
+                showState(`Erreur Apps Script : ${data.error}`);
+                return;
+            }
+
+            if (data && Object.keys(data).length > 0) {
+                sheetsData = data;
+                parseAllSheets();
+                buildTabs();
+                
+                switchTab('ALL');
+
+                document.getElementById('stateView').style.display = 'none';
+                document.getElementById('resultsWrapper').style.display = 'flex';
+            } else {
+                showState('Aucun onglet ou donnée trouvé dans le document.');
+            }
+            
+            if (script.parentNode) {
+                script.parentNode.removeChild(script);
+            }
+        };
+
+        script.src = `${SCRIPT_URL}?callback=handleGoogleData`;
+        script.onerror = function() {
+            showState('Erreur de connexion.<br><small style="color: #F87171; margin-top: 8px; display: block;">Vérifiez que vous êtes connecté à votre compte Boulanger sur ce navigateur.</small>');
+        };
+        
+        document.body.appendChild(script);
+    }
+
+    function parseAllSheets() {
+        parsedSheets = {};
+
+        Object.keys(sheetsData).forEach(sheetName => {
+            const rawContent = sheetsData[sheetName] || [];
+            if (rawContent.length === 0) return;
+
+            let headerIdx = rawContent.findIndex(row => 
+                row.some(cell => {
+                    const c = String(cell).toLowerCase();
+                    return c.includes('marque') || c.includes('code') || c.includes('produit');
+                })
+            );
+
+            if (headerIdx === -1) headerIdx = 0;
+
+            const headers = rawContent[headerIdx].map(h => String(h).trim()).filter(h => h !== '');
+            const rows = rawContent.slice(headerIdx + 1).filter(row => row.some(cell => String(cell).trim() !== ''));
+
+            if (headers.length > 0 && rows.length > 0) {
+                parsedSheets[sheetName] = { headers, rows };
+            }
+        });
+    }
+
+    function buildTabs() {
+        const tabsNav = document.getElementById('tabsNav');
+        tabsNav.innerHTML = '';
+
+        const allBtn = document.createElement('button');
+        allBtn.className = 'tab-btn';
+        allBtn.innerHTML = `Tous les onglets <span class="tab-badge" id="badge-ALL">0</span>`;
+        allBtn.onclick = () => switchTab('ALL');
+        allBtn.dataset.sheet = 'ALL';
+        tabsNav.appendChild(allBtn);
+
+        Object.keys(parsedSheets).forEach(sheetName => {
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn';
+            btn.textContent = sheetName;
+            btn.onclick = () => switchTab(sheetName);
+            btn.dataset.sheet = sheetName;
+            tabsNav.appendChild(btn);
+        });
+    }
+
+    function switchTab(sheetName) {
+        activeSheetName = sheetName;
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.sheet === sheetName);
+        });
+
+        renderView(document.getElementById('searchInput').value);
+    }
+
+    function handleSearch(query) {
+        if (query.trim().length > 0 && activeSheetName !== 'ALL') {
+            activeSheetName = 'ALL';
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.sheet === 'ALL');
+            });
+        }
+        renderView(query);
+    }
+
+    function renderView(searchQuery) {
+        const wrapper = document.getElementById('resultsWrapper');
+        wrapper.innerHTML = '';
+
+        const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(k => k.length > 0);
+        let grandTotalMatches = 0;
+
+        const targetSheets = (activeSheetName === 'ALL') ? Object.keys(parsedSheets) : [activeSheetName];
+
+        targetSheets.forEach(sheetName => {
+            const sheet = parsedSheets[sheetName];
+            if (!sheet) return;
+
+            // Filtrer les lignes correspondant aux mots clés
+            const matchingRows = sheet.rows.filter(row => {
+                const rowText = row.join(' ').toLowerCase();
+                return keywords.every(kw => rowText.includes(kw));
+            });
+
+            if (matchingRows.length > 0) {
+                grandTotalMatches += matchingRows.length;
+
+                // Créer une section de tableau dédiée à cet onglet
+                const section = document.createElement('div');
+                section.className = 'sheet-section';
+
+                section.innerHTML = `
+                    <div class="sheet-header">
+                        <div class="sheet-title">
+                            📄 <span>${sheetName}</span>
+                        </div>
+                        <div class="sheet-count">${matchingRows.length} produit(s)</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>${sheet.headers.map(h => `<th>${h}</th>`).join('')}</tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                `;
+
+                const tbody = section.querySelector('tbody');
+
+                matchingRows.forEach(row => {
+                    const tr = document.createElement('tr');
+                    sheet.headers.forEach((_, colIdx) => {
+                        const td = document.createElement('td');
+                        let cellVal = row[colIdx] !== undefined ? String(row[colIdx]) : '';
+
+                        if (cellVal.startsWith('http://') || cellVal.startsWith('https://')) {
+                            td.innerHTML = `<a href="${cellVal}" target="_blank" class="btn-link">Ouvrir ↗</a>`;
+                        } else if (keywords.length > 0) {
+                            td.innerHTML = highlightText(cellVal, keywords);
+                        } else {
+                            td.textContent = cellVal;
+                        }
+
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+
+                wrapper.appendChild(section);
+            }
+        });
+
+        // Mettre à jour le compteur global
+        document.getElementById('statCount').textContent = grandTotalMatches;
+        const badgeAll = document.getElementById('badge-ALL');
+        if (badgeAll) badgeAll.textContent = grandTotalMatches;
+
+        if (grandTotalMatches === 0) {
+            wrapper.innerHTML = `
+                <div class="no-results">
+                    <h3>Aucun résultat trouvé</h3>
+                    <p style="margin-top: 0.5rem;">Aucune promotion ne correspond à votre recherche "${searchQuery}".</p>
+                </div>
+            `;
+        }
+    }
+
+    function highlightText(text, keywords) {
+        let pattern = keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+        let regex = new RegExp(`(${pattern})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    function showState(msg) {
+        const container = document.getElementById('stateView');
+        container.innerHTML = `<p style="font-weight:600;">${msg}</p>`;
+        container.style.display = 'block';
+        document.getElementById('resultsWrapper').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
