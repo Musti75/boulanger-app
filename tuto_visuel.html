@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Générateur d'ILV Boulanger - Éditeur</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <title>Guide & Tutoriel Complet - Outil ILV Boulanger</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -16,1587 +15,611 @@
 
     body {
       background-color: #0f172a;
-      color: #333;
+      color: #f8fafc;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
     }
 
-    /* En-tête de l'application & Onglets */
+    /* En-tête */
     header {
       background: #1e293b;
-      color: white;
-      padding: 10px 20px;
+      padding: 16px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #334155;
-      z-index: 10;
+      border-bottom: 2px solid #e55300;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
 
-    .brand-title {
-      font-size: 1.1rem;
-      font-weight: 700;
+    .brand-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
       color: #e55300;
     }
 
-    .tabs-container {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      overflow-x: auto;
-      max-width: 40%;
-      padding-bottom: 2px;
-    }
-
-    .tab {
+    .btn-back {
       background: #334155;
-      color: #cbd5e1;
+      color: white;
+      text-decoration: none;
       padding: 8px 16px;
-      border-radius: 6px 6px 0 0;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-
-    .tab.active {
-      background: #e55300;
-      color: white;
-      font-weight: bold;
-    }
-
-    .tab .close-tab {
-      font-size: 0.75rem;
-      opacity: 0.7;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .tab .close-tab:hover {
-      opacity: 1;
-      background: rgba(0,0,0,0.3);
-    }
-
-    .btn-add-tab {
-      background: #334155;
-      color: white;
-      border: 1px solid #475569;
-      padding: 7px 14px;
       border-radius: 6px;
-      cursor: pointer;
       font-weight: bold;
       font-size: 0.85rem;
+      transition: background 0.2s;
     }
 
-    .btn-add-tab:hover {
+    .btn-back:hover {
       background: #475569;
     }
 
-    .header-actions {
+    /* Sélecteur d'onglets de navigation du Tutoriel */
+    .tuto-nav-tabs {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
       display: flex;
-      gap: 8px;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px 20px;
     }
 
-    .btn-action-head {
-      background: #38bdf8;
-      color: #0f172a;
-      border: none;
-      padding: 9px 12px;
-      border-radius: 6px;
-      font-weight: bold;
+    .tuto-tab-btn {
+      background: #0f172a;
+      color: #94a3b8;
+      border: 2px solid #334155;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
+      gap: 8px;
+      transition: all 0.2s ease;
     }
 
-    .btn-action-head:hover {
-      background: #0284c7;
-      color: white;
-    }
-
-    .btn-gallery {
+    .tuto-tab-btn.active {
       background: #e55300;
       color: white;
+      border-color: #e55300;
+      box-shadow: 0 4px 12px rgba(229, 83, 0, 0.3);
     }
 
-    .btn-gallery:hover {
-      background: #c44600;
-      color: white;
-    }
-
-    .btn-tuto {
-      background: #0284c7;
-      color: white;
-    }
-
-    .btn-tuto:hover {
-      background: #0369a1;
-      color: white;
-    }
-
-    .btn-print {
-      background: #22c55e;
-      color: white;
-      border: none;
-      padding: 9px 16px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-    }
-
-    .btn-print:hover {
-      background: #16a34a;
-    }
-
-    /* Layout principal */
-    .app-container {
-      display: flex;
+    /* Zone principale du guide */
+    main {
       flex: 1;
-      overflow: hidden;
-    }
-
-    /* Panneau de contrôle latéral */
-    .controls-panel {
-      width: 400px;
-      background: #f8fafc;
-      border-right: 1px solid #cbd5e1;
-      padding: 20px;
-      overflow-y: auto;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 30px 20px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      gap: 30px;
     }
 
-    .control-section {
-      background: white;
-      border: 1px solid #e2e8f0;
+    .hero-title {
+      text-align: center;
+    }
+
+    .hero-title h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2rem;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .hero-title p {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    /* Conteneurs de sections */
+    .tuto-view {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .tuto-view.active {
+      display: flex;
+    }
+
+    /* Bloc étape du tutoriel */
+    .tuto-step-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 12px;
+    }
+
+    .step-badge {
+      background: #e55300;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .step-header h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      color: #ffffff;
+    }
+
+    /* Layout à deux colonnes */
+    .step-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 850px) {
+      .step-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-explanation {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-explanation p {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .step-explanation ul {
+      margin-left: 20px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .step-explanation ul li strong {
+      color: #f1f5f9;
+    }
+
+    /* Représentations graphiques */
+    .control-preview {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
       border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      padding: 14px;
+      color: #333;
     }
 
-    .control-section h3 {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      color: #475569;
-      margin-bottom: 12px;
-      letter-spacing: 0.5px;
-      border-bottom: 2px solid #e55300;
-      padding-bottom: 4px;
-      display: inline-block;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
-
-    .form-group label {
+    .control-preview label {
       display: block;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       color: #334155;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
-    .form-control {
+    .control-preview input, .control-preview select {
       width: 100%;
       padding: 8px 10px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       font-size: 0.85rem;
-      background: #fff;
+      background: white;
+      margin-bottom: 8px;
     }
 
-    .form-control:focus {
-      outline: none;
-      border-color: #e55300;
-      box-shadow: 0 0 0 2px rgba(229, 83, 0, 0.2);
-    }
-
-    .checkbox-group {
+    .visual-target {
+      background: #090d16;
+      border: 2px dashed #e55300;
+      border-radius: 10px;
+      padding: 20px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      padding: 8px 12px;
-      border-radius: 6px;
+      justify-content: center;
+      min-height: 180px;
+      position: relative;
     }
 
-    .checkbox-group label {
-      margin-bottom: 0;
-      color: #dc2626;
+    .visual-target-title {
+      position: absolute;
+      top: -12px;
+      background: #e55300;
+      color: white;
+      font-size: 0.75rem;
       font-weight: bold;
-      cursor: pointer;
+      padding: 2px 10px;
+      border-radius: 10px;
+      text-transform: uppercase;
     }
 
-    .checkbox-group input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #dc2626;
-      cursor: pointer;
-    }
-
-    /* Zone Coller / Glisser Image */
-    .paste-zone {
-      border: 2px dashed #cbd5e1;
-      border-radius: 6px;
+    .target-header-demo {
+      background: #e55300;
+      color: white;
+      width: 100%;
       padding: 15px;
       text-align: center;
-      background: #f8fafc;
-      color: #64748b;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-top: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      border-radius: 6px;
     }
 
-    .paste-zone:hover, .paste-zone.dragover {
-      border-color: #e55300;
-      background: #fff7ed;
+    .target-prices-demo {
+      background: white;
+      color: #000;
+      width: 100%;
+      padding: 15px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .target-prices-demo .title { font-weight: bold; font-size: 1.1rem; }
+    .target-prices-demo .old { font-size: 1.4rem; text-decoration: line-through; opacity: 0.7; }
+    .target-prices-demo .new { font-size: 2.6rem; font-weight: 900; color: #000; }
+
+    .target-infinity-demo {
+      background: white;
+      border: 3px solid #e55300;
+      border-radius: 16px;
+      padding: 12px 20px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .target-infinity-demo .price {
+      font-size: 2.5rem;
+      font-weight: 900;
       color: #e55300;
     }
 
-    textarea.form-control {
-      resize: vertical;
-      min-height: 80px;
-    }
+    .target-infinity-demo img { max-height: 40px; }
 
-    .input-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .range-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .range-group input[type="range"] {
-      flex: 1;
-      accent-color: #e55300;
-    }
-
-    .range-value {
-      font-size: 0.8rem;
+    .shortcut-tag {
+      background: #334155;
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
       font-weight: bold;
-      width: 45px;
-      text-align: right;
-      color: #475569;
     }
 
-    .btn-group {
+    /* Carte Miniature de Galerie Demo */
+    .gallery-card-demo {
+      background: #1e293b;
+      border: 2px solid #e55300;
+      border-radius: 8px;
+      width: 100%;
+      padding: 12px;
       display: flex;
+      flex-direction: column;
       gap: 8px;
-      flex-wrap: wrap;
     }
 
-    .btn-secondary {
-      background: #f1f5f9;
-      color: #334155;
-      border: 1px solid #cbd5e1;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .btn-secondary:hover {
-      background: #e2e8f0;
-      border-color: #94a3b8;
-    }
-
-    /* Zone de prévisualisation */
-    .preview-area {
-      flex: 1;
-      background: #0f172a;
-      overflow: auto;
+    .gallery-card-head {
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px;
-    }
-
-    .paper-wrapper {
-      transform-origin: top center;
-      transition: transform 0.2s ease;
-    }
-
-    /* Document ILV */
-    .ilv-document {
-      background: white;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      box-sizing: border-box;
-      overflow: hidden;
-      margin: 0 auto;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    /* Formats de papier */
-    .ilv-document.format-a4 {
-      width: 210mm;
-      height: 297mm;
-    }
-
-    .ilv-document.format-a5 {
-      width: 148mm;
-      height: 210mm;
-    }
-
-    .ilv-document.format-a6 {
-      width: 105mm;
-      height: 148mm;
-    }
-
-    /* En-tête Orange Boulanger */
-    .ilv-header {
-      background-color: #e55300 !important;
-      color: white !important;
-      height: 27%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 0 20px;
-      transition: height 0.1s ease;
-      overflow: hidden;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    .ilv-header-title {
-      font-family: 'Poppins', 'Arial Black', sans-serif;
-      font-size: 6.6rem;
-      font-weight: 900;
-      letter-spacing: -2px;
-      outline: none;
-      width: 100%;
-      line-height: 1;
-      text-transform: none;
-      transition: font-size 0.1s ease;
-      overflow-wrap: break-word;
-      word-break: break-word;
-      color: white !important;
-    }
-
-    /* Modèle d'exposition */
-    .ilv-expo-banner {
-      background-color: #dc2626 !important;
-      color: white !important;
-      font-weight: 900;
-      text-transform: uppercase;
-      text-align: center;
-      padding: 6px 10px;
-      font-size: 1.4rem;
-      letter-spacing: 2px;
-      display: none;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    .ilv-expo-banner.active {
-      display: block;
-    }
-
-    .ilv-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 30px 15px 30px;
-      position: relative;
       justify-content: space-between;
-      overflow: hidden;
-    }
-
-    .ilv-main-content {
-      display: flex;
-      height: 48%;
-      gap: 20px;
-    }
-
-    /* Zone Image Produit */
-    .ilv-image-container {
-      width: 48%;
-      height: 100%;
-      position: relative;
-      overflow: visible;
-      display: flex;
       align-items: center;
-      justify-content: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 6px;
     }
 
-    .ilv-image-container img {
-      position: absolute;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      transition: transform 0.05s ease;
-    }
-
-    /* Zone Prix & Titre à droite */
-    .ilv-details-container {
-      width: 52%;
+    .gallery-actions-btns {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      justify-content: center;
+      gap: 6px;
     }
 
-    .ilv-product-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #000;
-      line-height: 1.25;
-      margin-bottom: 6px;
-      outline: none;
-      width: 100%;
-    }
-
-    .ilv-product-ref {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #000;
-      margin-bottom: 16px;
-      outline: none;
-    }
-
-    .ilv-old-price-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      margin-bottom: 10px;
-    }
-
-    .ilv-old-price-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-
-    .ilv-old-price {
-      font-size: 3.5rem;
-      font-weight: 900;
-      color: #000;
-      outline: none;
-      line-height: 0.9;
-    }
-
-    .ilv-strike-line {
-      position: absolute;
-      top: 50%;
-      left: -10%;
-      width: 120%;
-      height: 5px;
-      background-color: #000 !important;
-      transform: rotate(-12deg);
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    .ilv-eco-tax-small {
+    .demo-btn-icon {
+      background: #334155;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
       font-size: 0.8rem;
-      font-weight: 700;
-      color: #000;
-      margin-top: 4px;
-      outline: none;
     }
 
-    .ilv-current-price {
-      font-size: 5.8rem;
-      font-weight: 900;
-      color: #000;
-      line-height: 0.85;
-      letter-spacing: -3px;
-      margin-bottom: 6px;
-      outline: none;
-    }
-
-    .ilv-eco-tax-medium {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #000;
-      outline: none;
-    }
-
-    /* Bloc Offre Club Infinity Centré & Épaissi */
-    .ilv-infinity-box {
-      width: 82%;
-      margin: 15px auto 0 auto;
-      border: 4.5px solid #e55300 !important;
-      border-radius: 25px;
-      padding: 18px 25px 12px 25px;
-      display: flex;
-      flex-direction: column;
-      background: white !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    .ilv-infinity-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-    }
-
-    .ilv-infinity-price {
-      font-size: 7.2rem;
-      font-weight: 900;
-      color: #e55300 !important;
-      line-height: 0.85;
-      letter-spacing: -3px;
-      outline: none;
-      flex: 1;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    .ilv-infinity-right {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      max-width: 55%;
-    }
-
-    .ilv-infinity-header {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #000000;
+    /* Pied de page */
+    footer {
       text-align: center;
-      line-height: 1.1; 
-      outline: none;
-      margin-bottom: 6px; 
-      width: 100%;
-    }
-
-    .ilv-infinity-logo-img {
-      max-width: 100%;
-      height: auto;
-      max-height: 100px;
-      object-fit: contain;
-    }
-
-    .ilv-infinity-eco {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #e55300 !important;
-      text-align: center;
-      margin-top: 8px;
-      outline: none;
-      width: 100%;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    /* Mentions Légales */
-    .ilv-legal-footer {
-      font-size: 0.58rem;
-      color: #000;
-      line-height: 1.25;
-      text-align: justify;
-      margin-top: 8px;
-      padding-top: 2px;
-      outline: none;
-      overflow: hidden;
-      max-height: 110px;
-    }
-
-    /* Adapteurs de taille selon le format */
-    .ilv-document.format-a5 { font-size: 70%; }
-    .ilv-document.format-a5 .ilv-expo-banner { font-size: 1rem; padding: 4px; }
-    .ilv-document.format-a5 .ilv-product-title { font-size: 1rem; }
-    .ilv-document.format-a5 .ilv-product-ref { font-size: 0.9rem; }
-    .ilv-document.format-a5 .ilv-old-price { font-size: 2.4rem; }
-    .ilv-document.format-a5 .ilv-current-price { font-size: 4rem; }
-    .ilv-document.format-a5 .ilv-infinity-price { font-size: 5rem; }
-    .ilv-document.format-a5 .ilv-infinity-header { font-size: 0.8rem; }
-    .ilv-document.format-a5 .ilv-infinity-logo-img { max-height: 70px; }
-    .ilv-document.format-a5 .ilv-legal-footer { max-height: 75px; font-size: 0.42rem; }
-
-    .ilv-document.format-a6 { font-size: 50%; }
-    .ilv-document.format-a6 .ilv-expo-banner { font-size: 0.75rem; padding: 2px; }
-    .ilv-document.format-a6 .ilv-product-title { font-size: 0.75rem; }
-    .ilv-document.format-a6 .ilv-product-ref { font-size: 0.65rem; }
-    .ilv-document.format-a6 .ilv-old-price { font-size: 1.6rem; }
-    .ilv-document.format-a6 .ilv-current-price { font-size: 2.7rem; }
-    .ilv-document.format-a6 .ilv-infinity-price { font-size: 3.5rem; }
-    .ilv-document.format-a6 .ilv-infinity-header { font-size: 0.55rem; }
-    .ilv-document.format-a6 .ilv-infinity-logo-img { max-height: 50px; }
-    .ilv-document.format-a6 .ilv-legal-footer { max-height: 50px; font-size: 0.3rem; }
-
-    /* Zone réservée aux copies imprimables (Multi-ILV) */
-    #print-container {
-      display: none;
-    }
-
-    /* Configuration stricte de l'impression */
-    @page {
-      margin: 0;
-    }
-
-    @media print {
-      body {
-        background: white !important;
-        height: auto !important;
-        overflow: visible !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-      
-      header, .controls-panel, .preview-area {
-        display: none !important;
-      }
-
-      #print-container {
-        display: block !important;
-        width: 100% !important;
-      }
-
-      .print-page {
-        page-break-after: always;
-        break-after: page;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-      }
-
-      .print-page .ilv-document {
-        box-shadow: none !important;
-        margin: 0 auto !important;
-      }
+      padding: 20px;
+      background: #1e293b;
+      color: #64748b;
+      font-size: 0.8rem;
+      border-top: 1px solid #334155;
     }
   </style>
 </head>
 <body>
 
-  <!-- Barre Supérieure -->
+  <!-- En-tête -->
   <header>
-    <div class="brand-title">
-      <span>🏷️ Éditeur d'ILV Boulanger</span>
+    <div class="brand-logo">
+      <span>📖 Guide & Tutoriel d'Utilisation</span>
     </div>
-
-    <!-- Gestionnaires d'onglets -->
-    <div class="tabs-container" id="tabs-list"></div>
-    <button class="btn-add-tab" id="add-tab-btn" type="button" title="Ajouter une nouvelle affiche">+ Nouveau</button>
-
-    <div class="header-actions">
-      <button class="btn-action-head btn-tuto" type="button" onclick="openTuto()">
-        📖 Tutoriel / Aide
-      </button>
-      <button class="btn-action-head btn-gallery" type="button" onclick="openGallery()">
-        👁️ Galerie / Aperçus
-      </button>
-      <button class="btn-action-head" type="button" onclick="saveProjectJSON()">
-        💾 Sauvegarder (.json)
-      </button>
-      <button class="btn-action-head" type="button" onclick="document.getElementById('input-project-file').click()">
-        📂 Charger (.json)
-      </button>
-      <input type="file" id="input-project-file" accept=".json" style="display:none;" onchange="loadProjectJSON(event)">
-      <button class="btn-print" type="button" onclick="printAllTabs()">
-        <span>🖨️ Imprimer Tout</span>
-      </button>
-    </div>
+    <a href="index.html" class="btn-back">&larr; Retour au Portail</a>
   </header>
 
-  <div class="app-container">
-    <!-- Panneau de Contrôle Latéral -->
-    <div class="controls-panel">
-      
-      <!-- Exportation & Importation -->
-      <div class="control-section">
-        <h3>Sauvegarde & Navigation</h3>
-        <div class="btn-group">
-          <button class="btn-secondary" type="button" style="flex:1;" onclick="openGallery()">👁️ Galerie de toutes les ILV</button>
-          <button class="btn-secondary" type="button" style="flex:1;" onclick="saveProjectJSON()">💾 Sauvegarder Projet</button>
-        </div>
-      </div>
-
-      <!-- Format & Échelle -->
-      <div class="control-section">
-        <h3>Format & Échelle</h3>
-        <div class="form-group">
-          <label>Format d'Impression</label>
-          <select id="select-format" class="form-control">
-            <option value="format-a4">A4 (210 x 297 mm)</option>
-            <option value="format-a5">A5 (148 x 210 mm)</option>
-            <option value="format-a6">A6 (105 x 148 mm)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Échelle d'Affichage (%)</label>
-          <div class="range-group">
-            <input type="range" id="input-scale" min="40" max="150" value="85">
-            <span class="range-value" id="val-scale">85%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ajustements de l'En-tête Orange (Par défaut 27% / 6.6rem) -->
-      <div class="control-section">
-        <h3>En-Tête Orange</h3>
-        <div class="form-group">
-          <label>Texte En-tête</label>
-          <input type="text" id="input-header" class="form-control" value="Bons plans">
-        </div>
-        <div class="form-group">
-          <label>Hauteur En-tête (%)</label>
-          <div class="range-group">
-            <input type="range" id="header-height" min="10" max="35" value="27">
-            <span class="range-value" id="val-header-height">27%</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Taille Texte (rem)</label>
-          <div class="range-group">
-            <input type="range" id="header-font-size" min="3" max="9" step="0.2" value="6.6">
-            <span class="range-value" id="val-header-font">6.6rem</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Informations Produit & Remises -->
-      <div class="control-section">
-        <h3>Prix & Remises</h3>
-
-        <div class="form-group">
-          <div class="checkbox-group">
-            <input type="checkbox" id="chk-expo">
-            <label for="chk-expo">MODÈLE D'EXPOSITION</label>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Titre Produit</label>
-          <input type="text" id="ctrl-title" class="form-control">
-        </div>
-        <div class="form-group">
-          <label>Référence / Code</label>
-          <input type="text" id="ctrl-ref" class="form-control">
-        </div>
-        <div class="form-group">
-          <label>Ancien Prix Initial (€)</label>
-          <input type="number" step="0.01" id="calc-old-price" class="form-control" value="1299">
-        </div>
-        
-        <div class="form-group">
-          <label>Remise Prix Principal</label>
-          <div class="input-row">
-            <select id="calc-mode-main" class="form-control" style="width:40%;">
-              <option value="price">Prix Direct</option>
-              <option value="pct">Remise %</option>
-              <option value="eur">Remise €</option>
-            </select>
-            <input type="number" step="0.01" id="calc-val-main" class="form-control" style="width:60%;" value="1100">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Éco-participation (Ancien / Nouveau)</label>
-          <div class="input-row">
-            <input type="text" id="ctrl-eco-small" class="form-control" placeholder="Ancien">
-            <input type="text" id="ctrl-eco-med" class="form-control" placeholder="Nouveau">
-          </div>
-        </div>
-      </div>
-
-      <!-- Club Infinity & Calculateur -->
-      <div class="control-section">
-        <h3>Club Infinity</h3>
-        <div class="form-group">
-          <label>Texte En-tête Offre</label>
-          <input type="text" id="ctrl-inf-header" class="form-control">
-        </div>
-
-        <div class="form-group">
-          <label>Remise Prix Infinity (sur Prix Initial)</label>
-          <div class="input-row">
-            <select id="calc-mode-inf" class="form-control" style="width:40%;">
-              <option value="price">Prix Direct</option>
-              <option value="pct">Remise %</option>
-              <option value="eur">Remise €</option>
-            </select>
-            <input type="number" step="0.01" id="calc-val-inf" class="form-control" style="width:60%;" value="779">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Éco-participation (Club)</label>
-          <input type="text" id="ctrl-inf-eco" class="form-control">
-        </div>
-      </div>
-
-      <!-- Image Produit & Copier-Coller -->
-      <div class="control-section">
-        <h3>Image Produit</h3>
-        <div class="form-group">
-          <label>Importer via fichier</label>
-          <input type="file" id="input-image" class="form-control" accept="image/*">
-        </div>
-
-        <div class="form-group">
-          <label>Ou Capture d'écran (Copier / Coller)</label>
-          <div class="paste-zone" id="paste-zone">
-            📋 Appuyez sur <strong>Ctrl + V</strong> ou <strong>Glissez une image ici</strong>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Zoom Image (%)</label>
-          <div class="range-group">
-            <input type="range" id="img-zoom" min="50" max="250" value="100">
-            <span class="range-value" id="val-zoom">100%</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Axe X (Horizontal)</label>
-          <div class="range-group">
-            <input type="range" id="img-x" min="-100" max="100" value="0">
-            <span class="range-value" id="val-x">0px</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Axe Y (Vertical)</label>
-          <div class="range-group">
-            <input type="range" id="img-y" min="-100" max="100" value="0">
-            <span class="range-value" id="val-y">0px</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mentions Légales -->
-      <div class="control-section">
-        <h3>Mentions Légales</h3>
-        <div class="form-group">
-          <textarea id="ctrl-legal" class="form-control"></textarea>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="control-section">
-        <h3>Actions Onglet</h3>
-        <div class="btn-group">
-          <button class="btn-secondary" type="button" style="flex:1;" onclick="duplicateCurrentTab()">📋 Dupliquer la fiche</button>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Zone de Prévisualisation de l'onglet actif -->
-    <div class="preview-area">
-      <div class="paper-wrapper" id="paper-wrapper">
-        <div class="ilv-document format-a4" id="ilv-doc">
-          
-          <div class="ilv-header" id="disp-header-box">
-            <div class="ilv-header-title" id="disp-header" contenteditable="true">Bons plans</div>
-          </div>
-
-          <div class="ilv-expo-banner" id="disp-expo">
-            MODÈLE D'EXPOSITION
-          </div>
-
-          <div class="ilv-body">
-            
-            <div class="ilv-main-content">
-              <div class="ilv-image-container">
-                <img id="disp-img" src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80" alt="Produit">
-              </div>
-
-              <div class="ilv-details-container">
-                <div class="ilv-product-title" id="disp-title" contenteditable="true">Description du produit</div>
-                <div class="ilv-product-ref" id="disp-ref" contenteditable="true">1222898</div>
-
-                <div class="ilv-old-price-container">
-                  <div class="ilv-old-price-wrapper">
-                    <span class="ilv-old-price" id="disp-old-price" contenteditable="true">1299€</span>
-                    <div class="ilv-strike-line"></div>
-                  </div>
-                  <div class="ilv-eco-tax-small" id="disp-eco-small" contenteditable="true">Dont 3.89 d'éco-participation</div>
-                </div>
-
-                <div class="ilv-current-price" id="disp-price" contenteditable="true">1100€</div>
-                <div class="ilv-eco-tax-medium" id="disp-eco-med" contenteditable="true">Dont 3.89€ d'éco-participation</div>
-              </div>
-            </div>
-
-            <div class="ilv-infinity-box">
-              <div class="ilv-infinity-content">
-                <div class="ilv-infinity-price" id="disp-inf-price" contenteditable="true">779€</div>
-                <div class="ilv-infinity-right">
-                  <div class="ilv-infinity-header" id="disp-inf-header" contenteditable="true">
-                    Pour tout nouvel adhérent au Club INFINITY*
-                  </div>
-                  <img src="https://boulanger.scene7.com/is/image/Boulanger/Logo_Club_RVB_Cocarde_Infinity_RVB?fmt=png-alpha" alt="Boulanger Le Club Infinity" class="ilv-infinity-logo-img">
-                </div>
-              </div>
-              <div class="ilv-infinity-eco" id="disp-inf-eco" contenteditable="true">
-                Dont 3.89€ d'éco-participation
-              </div>
-            </div>
-
-            <div class="ilv-legal-footer" id="disp-legal" contenteditable="true">
-              - La remise sera déduite de la facture totale pour tout client déjà adhérent à l’assurance Le Club INFINITY ou pour toute nouvelle adhésion à l’assurance Le Club INFINITY réalisée le même jour que l’achat en magasin. Voir conditions, garanties et exclusions dans la notice d’information de l’assurance Le Club INFINITY. Le Club INFINITY est un contrat d’assurance collective de dommages n°4033, souscrit par Boulanger SA au capital de 40 611 564 € - 347 384 570 RCS Lille métropole - Siège social : Avenue de la Motte 59810 LESQUIN ; par l’intermédiaire de Cofidis, SA à directoire et conseil de surveillance au capital social de 67 500 000€ situé Parc de la Haute-Borne, 61 avenue Halley, Villeneuve d’Ascq 59866, immatriculé au RCS de Lille Métropole sous le numéro 325 307 106 et immatriculé auprès de l’ORIAS sous le numéro 07 023 493 en qualité de Courtier d’assurances; auprès de CARDIF Assurances Risques Divers - S.A. au capital de 21 602 240 € - 308 896 547 RCS Paris - Siège social : 1 Boulevard Haussmann 75009 Paris - Entreprise régie par le Code des assurances.
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-    </div>
+  <!-- Onglets de choix de la partie -->
+  <div class="tuto-nav-tabs">
+    <button class="tuto-tab-btn active" id="btn-view-editor" onclick="switchView('editor')">
+      ✏️ Éditeur d'ILV
+    </button>
+    <button class="tuto-tab-btn" id="btn-view-table" onclick="switchView('table')">
+      📊 Tableau & Galerie de Sélection
+    </button>
   </div>
 
-  <div id="print-container"></div>
+  <main>
 
-  <script>
-    const defaultLegalText = `- La remise sera déduite de la facture totale pour tout client déjà adhérent à l’assurance Le Club INFINITY ou pour toute nouvelle adhésion à l’assurance Le Club INFINITY réalisée le même jour que l’achat en magasin. Voir conditions, garanties et exclusions dans la notice d’information de l’assurance Le Club INFINITY. Le Club INFINITY est un contrat d’assurance collective de dommages n°4033, souscrit par Boulanger SA au capital de 40 611 564 € - 347 384 570 RCS Lille métropole - Siège social : Avenue de la Motte 59810 LESQUIN ; par l’intermédiaire de Cofidis, SA à directoire et conseil de surveillance au capital social de 67 500 000€ situé Parc de la Haute-Borne, 61 avenue Halley, Villeneuve d’Ascq 59866, immatriculé au RCS de Lille Métropole sous le numéro 325 307 106 et immatriculé auprès de l’ORIAS sous le numéro 07 023 493 en qualité de Courtier d’assurances; auprès de CARDIF Assurances Risques Divers - S.A. au capital de 21 602 240 € - 308 896 547 RCS Paris - Siège social : 1 Boulevard Haussmann 75009 Paris - Entreprise régie par le Code des assurances.`;
-
-    let tabs = [
-      {
-        id: 1,
-        name: 'ILV 1',
-        format: 'format-a4',
-        header: 'Bons plans',
-        headerHeight: 27,
-        headerFontSize: 6.6,
-        isExpo: false,
-        title: 'Description du produit',
-        ref: '1222898',
-        oldPriceVal: 1299,
-        modeMain: 'price',
-        valMain: 1100,
-        modeInf: 'price',
-        valInf: 779,
-        ecoSmall: `Dont 3.89€ d'éco-participation`,
-        ecoMed: `Dont 3.89€ d'éco-participation`,
-        infHeader: 'Pour tout nouvel adhérent au Club INFINITY*',
-        infEco: `Dont 3.89€ d'éco-participation`,
-        legal: defaultLegalText,
-        imgSrc: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80',
-        zoom: 100,
-        posX: 0,
-        posY: 0
-      }
-    ];
-
-    let activeTabId = 1;
-    let nextTabId = 2;
-
-    const tabsListEl = document.getElementById('tabs-list');
-    const addTabBtn = document.getElementById('add-tab-btn');
-    const ilvDoc = document.getElementById('ilv-doc');
-    const paperWrapper = document.getElementById('paper-wrapper');
-    const printContainer = document.getElementById('print-container');
-
-    const selectFormat = document.getElementById('select-format');
-    const inputScale = document.getElementById('input-scale');
-    const valScale = document.getElementById('val-scale');
-    
-    const inputImage = document.getElementById('input-image');
-    const pasteZone = document.getElementById('paste-zone');
-    const imgZoom = document.getElementById('img-zoom');
-    const imgX = document.getElementById('img-x');
-    const imgY = document.getElementById('img-y');
-    const valZoom = document.getElementById('val-zoom');
-    const valX = document.getElementById('val-x');
-    const valY = document.getElementById('val-y');
-
-    const inputHeader = document.getElementById('input-header');
-    const headerHeight = document.getElementById('header-height');
-    const headerFontSize = document.getElementById('header-font-size');
-    const valHeaderHeight = document.getElementById('val-header-height');
-    const valHeaderFont = document.getElementById('val-header-font');
-
-    const chkExpo = document.getElementById('chk-expo');
-    const dispExpo = document.getElementById('disp-expo');
-
-    const ctrlTitle = document.getElementById('ctrl-title');
-    const ctrlRef = document.getElementById('ctrl-ref');
-    
-    const calcOldPrice = document.getElementById('calc-old-price');
-    const calcModeMain = document.getElementById('calc-mode-main');
-    const calcValMain = document.getElementById('calc-val-main');
-    
-    const calcModeInf = document.getElementById('calc-mode-inf');
-    const calcValInf = document.getElementById('calc-val-inf');
-
-    const ctrlEcoSmall = document.getElementById('ctrl-eco-small');
-    const ctrlEcoMed = document.getElementById('ctrl-eco-med');
-    const ctrlInfHeader = document.getElementById('ctrl-inf-header');
-    const ctrlInfEco = document.getElementById('ctrl-inf-eco');
-    const ctrlLegal = document.getElementById('ctrl-legal');
-
-    const dispHeaderBox = document.getElementById('disp-header-box');
-    const dispHeader = document.getElementById('disp-header');
-    const dispImg = document.getElementById('disp-img');
-    const dispTitle = document.getElementById('disp-title');
-    const dispRef = document.getElementById('disp-ref');
-    const dispOldPrice = document.getElementById('disp-old-price');
-    const dispEcoSmall = document.getElementById('disp-eco-small');
-    const dispPrice = document.getElementById('disp-price');
-    const dispEcoMed = document.getElementById('disp-eco-med');
-    const dispInfHeader = document.getElementById('disp-inf-header');
-    const dispInfPrice = document.getElementById('disp-inf-price');
-    const dispInfEco = document.getElementById('disp-inf-eco');
-    const dispLegal = document.getElementById('disp-legal');
-
-    function init() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tabParam = urlParams.get('tab');
-
-      const saved = localStorage.getItem('boulanger_ilv_project');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed.tabs && parsed.tabs.length > 0) {
-            tabs = parsed.tabs;
-            nextTabId = parsed.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
-            activeTabId = parsed.activeTabId || tabs[0].id;
-          }
-        } catch(e) {
-          console.error("Erreur de lecture du localStorage", e);
-        }
-      }
-
-      if (tabParam && tabs.some(t => t.id == tabParam)) {
-        activeTabId = parseInt(tabParam);
-      }
-
-      renderTabs();
-      loadTabData(activeTabId);
-      setupEventListeners();
-      setupClipboardAndDrag();
-    }
-
-    function saveToLocalStorage() {
-      saveCurrentTabData();
-      const projectData = {
-        version: "1.0",
-        activeTabId: activeTabId,
-        nextTabId: nextTabId,
-        tabs: tabs
-      };
-      localStorage.setItem('boulanger_ilv_project', JSON.stringify(projectData));
-    }
-
-    function openGallery() {
-      saveToLocalStorage();
-      window.location.href = 'test1.html';
-    }
-
-    function openTuto() {
-      saveToLocalStorage();
-      window.location.href = 'tuto_visuel.html';
-    }
-
-    function renderTabs() {
-      tabsListEl.innerHTML = '';
-      tabs.forEach(tab => {
-        const tabEl = document.createElement('div');
-        tabEl.className = `tab ${tab.id === activeTabId ? 'active' : ''}`;
-        tabEl.innerHTML = `
-          <span>${tab.name}</span>
-          ${tabs.length > 1 ? `<span class="close-tab" onclick="deleteTab(event, ${tab.id})">✕</span>` : ''}
-        `;
-        tabEl.addEventListener('click', () => switchTab(tab.id));
-        tabsListEl.appendChild(tabEl);
-      });
-    }
-
-    function switchTab(id) {
-      saveToLocalStorage();
-      activeTabId = id;
-      renderTabs();
-      loadTabData(id);
-    }
-
-    function addTab(e) {
-      if (e) e.preventDefault();
-      saveCurrentTabData();
+    <!-- SECTION 1 : ÉDITEUR D'ILV -->
+    <div class="tuto-view active" id="view-editor">
       
-      const newTab = {
-        id: nextTabId,
-        name: `ILV ${nextTabId}`,
-        format: 'format-a4',
-        header: 'Bons plans',
-        headerHeight: 27,
-        headerFontSize: 6.6,
-        isExpo: false,
-        title: 'Description du produit',
-        ref: '000000',
-        oldPriceVal: 1000,
-        modeMain: 'price',
-        valMain: 800,
-        modeInf: 'price',
-        valInf: 600,
-        ecoSmall: `Dont 3.89€ d'éco-participation`,
-        ecoMed: `Dont 3.89€ d'éco-participation`,
-        infHeader: 'Pour tout nouvel adhérent au Club INFINITY*',
-        infEco: `Dont 3.89€ d'éco-participation`,
-        legal: defaultLegalText,
-        imgSrc: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80',
-        zoom: 100,
-        posX: 0,
-        posY: 0
-      };
+      <div class="hero-title">
+        <h1>Éditeur d'ILV - Guide des fonctionnalités</h1>
+        <p>Découvrez le rôle de chaque paramètre du formulaire latéral et son impact en direct sur l'affiche.</p>
+      </div>
 
-      tabs.push(newTab);
-      activeTabId = nextTabId;
-      nextTabId++;
+      <!-- Étape 1.1 -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Étape 1</span>
+          <h2>Création de fiches & Navigation</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>La barre supérieure de l'éditeur centralise la gestion de vos onglets et vos sauvegardes de travail.</p>
+            <ul>
+              <li><strong>+ Nouveau :</strong> Ouvre immédiatement une nouvelle étiquette vierge aux paramètres initiaux.</li>
+              <li><strong>👁️ Galerie / Aperçus :</strong> Permet de basculer vers le tableau récapitulatif pour sélectionner les fiches à imprimer.</li>
+              <li><strong>💾 Sauvegarder (.json) :</strong> Télécharge tout votre projet sur votre PC sous forme de fichier.</li>
+              <li><strong>📂 Charger (.json) :</strong> Importe un projet sauvegardé précédemment pour charger toutes vos fiches.</li>
+            </ul>
+          </div>
+          <div class="control-preview">
+            <label>Barre d'actions supérieure</label>
+            <input type="button" value="+ Nouveau" style="background:#334155; color:white; font-weight:bold;">
+            <input type="button" value="💾 Sauvegarder (.json)" style="background:#38bdf8; color:#0f172a; font-weight:bold;">
+            <input type="button" value="📂 Charger (.json)" style="background:#38bdf8; color:#0f172a; font-weight:bold;">
+          </div>
+        </div>
+      </div>
 
-      localStorage.setItem('boulanger_ilv_project', JSON.stringify({
-        version: "1.0",
-        activeTabId: activeTabId,
-        nextTabId: nextTabId,
-        tabs: tabs
-      }));
+      <!-- Étape 1.2 -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Étape 2</span>
+          <h2>Bandeau Orange & Modèle d'Exposition</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>Adaptez l'en-tête selon l'événement commercial en cours dans votre magasin.</p>
+            <ul>
+              <li><strong>Texte En-tête :</strong> Personnalisez l'accroche (ex: <i>Bons plans, Prix Choc, Arrivage</i>).</li>
+              <li><strong>Hauteur & Taille de police :</strong> Ajustez le bandeau orange avec les curseurs pour un alignement optimal.</li>
+              <li><strong>Modèle d'exposition :</strong> Cochez la case dédiée pour faire apparaître le ruban rouge d'avertissement modèle d'expo.</li>
+            </ul>
+          </div>
+          <div class="visual-target">
+            <span class="visual-target-title">Rendu sur l'Affiche</span>
+            <div class="target-header-demo">Bons plans</div>
+          </div>
+        </div>
+      </div>
 
-      renderTabs();
-      loadTabData(activeTabId);
-    }
-
-    function duplicateCurrentTab() {
-      saveToLocalStorage();
-      const current = tabs.find(t => t.id === activeTabId);
-      const duplicated = JSON.parse(JSON.stringify(current));
-      duplicated.id = nextTabId;
-      duplicated.name = `ILV ${nextTabId}`;
-      tabs.push(duplicated);
-      activeTabId = nextTabId;
-      nextTabId++;
-      saveToLocalStorage();
-      renderTabs();
-      loadTabData(activeTabId);
-    }
-
-    function deleteTab(e, id) {
-      e.stopPropagation();
-      if (tabs.length <= 1) return;
-      tabs = tabs.filter(t => t.id !== id);
-      if (activeTabId === id) {
-        activeTabId = tabs[0].id;
-      }
-      saveToLocalStorage();
-      renderTabs();
-      loadTabData(activeTabId);
-    }
-
-    function saveCurrentTabData() {
-      const tab = tabs.find(t => t.id === activeTabId);
-      if (!tab) return;
-
-      tab.format = selectFormat.value;
-      tab.header = dispHeader.innerText;
-      tab.headerHeight = parseInt(headerHeight.value);
-      tab.headerFontSize = parseFloat(headerFontSize.value);
-      tab.isExpo = chkExpo.checked;
-
-      tab.title = dispTitle.innerText;
-      tab.ref = dispRef.innerText;
-      
-      tab.oldPriceVal = parseFloat(calcOldPrice.value) || 0;
-      tab.modeMain = calcModeMain.value;
-      tab.valMain = parseFloat(calcValMain.value) || 0;
-      tab.modeInf = calcModeInf.value;
-      tab.valInf = parseFloat(calcValInf.value) || 0;
-
-      tab.ecoSmall = dispEcoSmall.innerText;
-      tab.ecoMed = dispEcoMed.innerText;
-      tab.infHeader = dispInfHeader.innerText;
-      tab.infEco = dispInfEco.innerText;
-      tab.legal = dispLegal.innerText;
-      tab.imgSrc = dispImg.src;
-      tab.zoom = parseInt(imgZoom.value);
-      tab.posX = parseInt(imgX.value);
-      tab.posY = parseInt(imgY.value);
-    }
-
-    function loadTabData(id) {
-      const tab = tabs.find(t => t.id === id);
-      if (!tab) return;
-
-      selectFormat.value = tab.format || 'format-a4';
-      ilvDoc.className = `ilv-document ${selectFormat.value}`;
-
-      inputHeader.value = tab.header !== undefined ? tab.header : 'Bons plans';
-      headerHeight.value = tab.headerHeight !== undefined ? tab.headerHeight : 27;
-      headerFontSize.value = tab.headerFontSize !== undefined ? tab.headerFontSize : 6.6;
-
-      valHeaderHeight.innerText = `${headerHeight.value}%`;
-      valHeaderFont.innerText = `${headerFontSize.value}rem`;
-
-      dispHeaderBox.style.height = `${headerHeight.value}%`;
-      dispHeader.style.fontSize = `${headerFontSize.value}rem`;
-
-      chkExpo.checked = !!tab.isExpo;
-      if (tab.isExpo) {
-        dispExpo.classList.add('active');
-      } else {
-        dispExpo.classList.remove('active');
-      }
-
-      ctrlTitle.value = tab.title || '';
-      ctrlRef.value = tab.ref || '';
-      
-      calcOldPrice.value = tab.oldPriceVal !== undefined ? tab.oldPriceVal : 1000;
-      calcModeMain.value = tab.modeMain || 'price';
-      calcValMain.value = tab.valMain !== undefined ? tab.valMain : 800;
-      calcModeInf.value = tab.modeInf || 'price';
-      calcValInf.value = tab.valInf !== undefined ? tab.valInf : 600;
-
-      ctrlEcoSmall.value = tab.ecoSmall || '';
-      ctrlEcoMed.value = tab.ecoMed || '';
-      ctrlInfHeader.value = tab.infHeader || '';
-      ctrlInfEco.value = tab.infEco || '';
-      ctrlLegal.value = tab.legal || defaultLegalText;
-
-      dispHeader.innerText = tab.header || 'Bons plans';
-      dispTitle.innerText = tab.title || '';
-      dispRef.innerText = tab.ref || '';
-      dispEcoSmall.innerText = tab.ecoSmall || '';
-      dispEcoMed.innerText = tab.ecoMed || '';
-      dispInfHeader.innerText = tab.infHeader || '';
-      dispInfEco.innerText = tab.infEco || '';
-      dispLegal.innerText = tab.legal || defaultLegalText;
-
-      dispImg.src = tab.imgSrc || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80';
-
-      imgZoom.value = tab.zoom !== undefined ? tab.zoom : 100;
-      imgX.value = tab.posX !== undefined ? tab.posX : 0;
-      imgY.value = tab.posY !== undefined ? tab.posY : 0;
-
-      valZoom.innerText = `${imgZoom.value}%`;
-      valX.innerText = `${imgX.value}px`;
-      valY.innerText = `${imgY.value}px`;
-
-      updateCalculations();
-      updateImageTransform();
-    }
-
-    function updateCalculations() {
-      const oldP = parseFloat(calcOldPrice.value) || 0;
-      dispOldPrice.innerText = `${oldP}€`;
-
-      let finalMainP = 0;
-      const modeM = calcModeMain.value;
-      const valM = parseFloat(calcValMain.value) || 0;
-
-      if (modeM === 'price') {
-        finalMainP = valM;
-      } else if (modeM === 'pct') {
-        finalMainP = oldP * (1 - valM / 100);
-      } else if (modeM === 'eur') {
-        finalMainP = oldP - valM;
-      }
-      dispPrice.innerText = `${Math.round(finalMainP)}€`;
-
-      let finalInfP = 0;
-      const modeI = calcModeInf.value;
-      const valI = parseFloat(calcValInf.value) || 0;
-
-      if (modeI === 'price') {
-        finalInfP = valI;
-      } else if (modeI === 'pct') {
-        finalInfP = oldP * (1 - valI / 100);
-      } else if (modeI === 'eur') {
-        finalInfP = oldP - valI;
-      }
-      dispInfPrice.innerText = `${Math.round(finalInfP)}€`;
-    }
-
-    function printAllTabs() {
-      saveToLocalStorage();
-      printContainer.innerHTML = '';
-
-      tabs.forEach(tab => {
-        const oldP = tab.oldPriceVal || 0;
-        let finalMainP = 0;
-        if (tab.modeMain === 'price') finalMainP = tab.valMain;
-        else if (tab.modeMain === 'pct') finalMainP = oldP * (1 - tab.valMain / 100);
-        else if (tab.modeMain === 'eur') finalMainP = oldP - tab.valMain;
-
-        let finalInfP = 0;
-        if (tab.modeInf === 'price') finalInfP = tab.valInf;
-        else if (tab.modeInf === 'pct') finalInfP = oldP * (1 - tab.valInf / 100);
-        else if (tab.modeInf === 'eur') finalInfP = oldP - tab.valInf;
-
-        const pageEl = document.createElement('div');
-        pageEl.className = 'print-page';
-        pageEl.innerHTML = `
-          <div class="ilv-document ${tab.format}">
-            <div class="ilv-header" style="height:${tab.headerHeight}%;">
-              <div class="ilv-header-title" style="font-size:${tab.headerFontSize}rem;">${tab.header}</div>
-            </div>
-            <div class="ilv-expo-banner ${tab.isExpo ? 'active' : ''}">
-              MODÈLE D'EXPOSITION
-            </div>
-            <div class="ilv-body">
-              <div class="ilv-main-content">
-                <div class="ilv-image-container">
-                  <img src="${tab.imgSrc}" style="transform: translate(${tab.posX}px, ${tab.posY}px) scale(${tab.zoom / 100});">
-                </div>
-                <div class="ilv-details-container">
-                  <div class="ilv-product-title">${tab.title}</div>
-                  <div class="ilv-product-ref">${tab.ref}</div>
-                  <div class="ilv-old-price-container">
-                    <div class="ilv-old-price-wrapper">
-                      <span class="ilv-old-price">${oldP}€</span>
-                      <div class="ilv-strike-line"></div>
-                    </div>
-                    <div class="ilv-eco-tax-small">${tab.ecoSmall}</div>
-                  </div>
-                  <div class="ilv-current-price">${Math.round(finalMainP)}€</div>
-                  <div class="ilv-eco-tax-medium">${tab.ecoMed}</div>
-                </div>
-              </div>
-              <div class="ilv-infinity-box">
-                <div class="ilv-infinity-content">
-                  <div class="ilv-infinity-price">${Math.round(finalInfP)}€</div>
-                  <div class="ilv-infinity-right">
-                    <div class="ilv-infinity-header">${tab.infHeader}</div>
-                    <img src="https://boulanger.scene7.com/is/image/Boulanger/Logo_Club_RVB_Cocarde_Infinity_RVB?fmt=png-alpha" class="ilv-infinity-logo-img">
-                  </div>
-                </div>
-                <div class="ilv-infinity-eco">${tab.infEco}</div>
-              </div>
-              <div class="ilv-legal-footer">${tab.legal}</div>
+      <!-- Étape 1.3 (Mise à jour détaillée avec le calcul des remises sur prix initial) -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Étape 3</span>
+          <h2>Information Produit & Calcul des Remises</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>Saisissez le nom, le prix de départ et laissez l'éditeur effectuer le calcul exact des remises.</p>
+            <ul>
+              <li><strong>Ancien Prix Initial (€) :</strong> Saisissez le prix d'origine du produit. <i>Remarque : toutes les remises configurées ci-dessous s'appliquent systématiquement sur ce prix d'origine.</i></li>
+              <li><strong>Prix Direct :</strong> Saisissez directement le prix final désiré (ex: 1100€).</li>
+              <li><strong>Remise en Pourcentage (%) :</strong> Choisissez le mode <i>Remise %</i> et entrez la valeur (ex: 15%). L'éditeur calcule automatiquement le prix remisé (1299€ - 15% = 1104€).</li>
+              <li><strong>Remise en Euros (€) :</strong> Choisissez le mode <i>Remise €</i> et saisissez la réduction (ex: 200€). L'éditeur déduit le montant du prix initial.</li>
+              <li><strong>Résultat dynamique :</strong> Le prix d'origine est automatiquement rayé et le nouveau prix s'affiche en grand.</li>
+            </ul>
+          </div>
+          <div class="visual-target">
+            <span class="visual-target-title">Rendu sur l'Affiche</span>
+            <div class="target-prices-demo">
+              <div class="title">Description du produit</div>
+              <div class="old">1299€</div>
+              <div class="new">1100€</div>
             </div>
           </div>
-        `;
-        printContainer.appendChild(pageEl);
-      });
+        </div>
+      </div>
 
-      window.print();
-    }
+      <!-- Étape 1.4 -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Étape 4</span>
+          <h2>Offre Spéciale Club Infinity</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>Configurez l'encadré d'avantage exclusif réservé aux adhérents au Club INFINITY.</p>
+            <ul>
+              <li><strong>Calcul sur Prix Initial :</strong> De la même manière que le prix principal, la remise Club Infinity s'applique également par rapport au prix d'origine initial.</li>
+              <li><strong>Choix du mode :</strong> Saisie directe du prix Club, réduction en pourcentage (%) ou remise fixe en Euros (€).</li>
+              <li><strong>Présentation :</strong> Le prix calculé apparaît en grands caractères orange aux côtés du logo officiel Infinity.</li>
+            </ul>
+          </div>
+          <div class="visual-target">
+            <span class="visual-target-title">Rendu sur l'Affiche</span>
+            <div class="target-infinity-demo">
+              <div class="price">779€</div>
+              <img src="https://boulanger.scene7.com/is/image/Boulanger/Logo_Club_RVB_Cocarde_Infinity_RVB?fmt=png-alpha" alt="Infinity">
+            </div>
+          </div>
+        </div>
+      </div>
 
-    function saveProjectJSON() {
-      saveToLocalStorage();
-      const projectData = {
-        version: "1.0",
-        activeTabId: activeTabId,
-        nextTabId: nextTabId,
-        tabs: tabs
-      };
-      const jsonStr = JSON.stringify(projectData, null, 2);
-      const blob = new Blob([jsonStr], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `projet_ilv_boulanger_${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+      <!-- Étape 1.5 -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Étape 5</span>
+          <h2>Insertion Image & Recadrage (Ctrl + V)</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>Le module d'image accepte la capture d'écran directe pour un gain de temps maximal.</p>
+            <ul>
+              <li><strong>Copier-Coller instantané :</strong> Faites une capture d'écran de l'image du produit et appuyez directement sur <span class="shortcut-tag">Ctrl + V</span> sur l'écran.</li>
+              <li><strong>Contrôles de cadrage :</strong> Ajustez le zoom et déplacez l'image sur les axes X et Y pour la centrer.</li>
+            </ul>
+          </div>
+          <div class="control-preview">
+            <label>Zone d'import Rapide</label>
+            <div style="border:2px dashed #cbd5e1; padding:15px; text-align:center; color:#64748b; font-size:0.8rem; background:#fff;">
+              📋 Appuyez sur <strong>Ctrl + V</strong> ou <strong>Glissez une image ici</strong>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    function loadProjectJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+    </div>
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const projectData = JSON.parse(e.target.result);
-          if (projectData.tabs && Array.isArray(projectData.tabs) && projectData.tabs.length > 0) {
-            tabs = projectData.tabs;
-            activeTabId = projectData.activeTabId || tabs[0].id;
-            
-            if (!tabs.some(t => t.id === activeTabId)) {
-              activeTabId = tabs[0].id;
-            }
+    <!-- SECTION 2 : TABLEAU RÉCAPITULATIF ET GALERIE -->
+    <div class="tuto-view" id="view-table">
+      
+      <div class="hero-title">
+        <h1>Tableau de Sélection & Galerie des ILV</h1>
+        <p>Découvrez comment gérer la liste globale de vos étiquettes, dupliquer vos séries et imprimer à la carte.</p>
+      </div>
 
-            nextTabId = projectData.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
+      <!-- Étape 2.1 -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Fonction 1</span>
+          <h2>Vue d'ensemble et Sélection d'impression</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>La page de tableau regroupe sous forme de vignettes l'intégralité des étiquettes en cours de création.</p>
+            <ul>
+              <li><strong>Case à cocher :</strong> Chaque carte dispose d'une case à cocher pour déterminer si elle doit être imprimée ou non.</li>
+              <li><strong>Tout Sélectionner / Désélectionner :</strong> Permet d'imprimer l'ensemble des fiches du magasin en un seul clic.</li>
+              <li><strong>Compteur d'ILV :</strong> Le bandeau supérieur affiche en temps réel le nombre d'ILV prêtes et sélectionnées.</li>
+            </ul>
+          </div>
+          <div class="control-preview">
+            <label>Barre d'outils du Tableau</label>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:10px; border-radius:6px; color:white; font-size:0.85rem;">
+              <span>Total : <strong>3 ILV</strong> | Sélectionnées : <strong>3</strong></span>
+              <input type="button" value="☑️ Tout Sélectionner" style="width:auto; background:#334155; color:white; font-weight:bold; margin:0;">
+            </div>
+          </div>
+        </div>
+      </div>
 
-            localStorage.setItem('boulanger_ilv_project', JSON.stringify({
-              version: "1.0",
-              activeTabId: activeTabId,
-              nextTabId: nextTabId,
-              tabs: tabs
-            }));
+      <!-- Étape 2.2 -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Fonction 2</span>
+          <h2>Actions Rapides par Étiquette</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>Chaque carte vignette propose 3 boutons d'action rapide dans son en-tête :</p>
+            <ul>
+              <li><strong>✏️ Mode Éditeur :</strong> Ouvre l'étiquette directement dans l'éditeur pour modifier ses textes, ses prix ou son image.</li>
+              <li><strong>📋 Dupliquer :</strong> Crée une copie conforme de la fiche sélectionnée. Pratique pour créer une série de produits similaires en ne modifiant que la référence !</li>
+              <li><strong>🗑️ Supprimer :</strong> Retire l'étiquette de la liste courante.</li>
+            </ul>
+          </div>
+          <div class="gallery-card-demo">
+            <div class="gallery-card-head">
+              <span style="font-weight:bold; font-size:0.85rem; color:white;">☑️ ILV 1 (1222898)</span>
+              <div class="gallery-actions-btns">
+                <button class="demo-btn-icon">✏️</button>
+                <button class="demo-btn-icon">📋</button>
+                <button class="demo-btn-icon" style="background:#dc2626;">🗑️</button>
+              </div>
+            </div>
+            <div style="background:#090d16; text-align:center; padding:10px; color:#94a3b8; font-size:0.8rem; border-radius:4px;">
+              Aperçu miniature du visuel produit
+            </div>
+          </div>
+        </div>
+      </div>
 
-            renderTabs();
-            loadTabData(activeTabId);
-            alert("Projet ILV chargé avec succès !");
-          } else {
-            alert("Fichier JSON invalide ou vide.");
-          }
-        } catch (err) {
-          alert("Erreur lors de la lecture du fichier JSON.");
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = "";
-    }
+      <!-- Étape 2.3 -->
+      <div class="tuto-step-card">
+        <div class="step-header">
+          <span class="step-badge">Fonction 3</span>
+          <h2>Impression Groupée Parfaite</h2>
+        </div>
+        <div class="step-body">
+          <div class="step-explanation">
+            <p>Lancez l'impression groupée de toutes les étiquettes cochées dans la liste.</p>
+            <ul>
+              <li><strong>Saut de page automatique :</strong> Chaque étiquette s'imprime proprement sur sa propre page, au format exact configuré (A4, A5 ou A6).</li>
+              <li><strong>Respect des couleurs Boulanger :</strong> Les bandeaux orange et le bloc Club Infinity conservent leurs couleurs d'origine à l'impression.</li>
+            </ul>
+          </div>
+          <div class="control-preview">
+            <label>Bouton d'Impression</label>
+            <input type="button" value="🖨️ Imprimer Sélection" style="background:#22c55e; color:white; font-size:1rem; font-weight:bold; padding:10px;">
+          </div>
+        </div>
+      </div>
 
-    function handleImageFile(file) {
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          dispImg.src = e.target.result;
-          saveToLocalStorage();
-        };
-        reader.readAsDataURL(file);
+    </div>
+
+  </main>
+
+  <footer>
+    Portail d'Outils Magasin Boulanger &bull; Document de Formation ILV
+  </footer>
+
+  <script>
+    function switchView(viewName) {
+      document.querySelectorAll('.tuto-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tuto-tab-btn').forEach(el => el.classList.remove('active'));
+
+      if (viewName === 'editor') {
+        document.getElementById('view-editor').classList.add('active');
+        document.getElementById('btn-view-editor').classList.add('active');
+      } else if (viewName === 'table') {
+        document.getElementById('view-table').classList.add('active');
+        document.getElementById('btn-view-table').classList.add('active');
       }
     }
-
-    function setupClipboardAndDrag() {
-      window.addEventListener('paste', (e) => {
-        const items = e.clipboardData.items;
-        for (let i = 0; i < items.length; i++) {
-          if (items[i].type.indexOf('image') !== -1) {
-            const file = items[i].getAsFile();
-            handleImageFile(file);
-            break;
-          }
-        }
-      });
-
-      pasteZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        pasteZone.classList.add('dragover');
-      });
-
-      pasteZone.addEventListener('dragleave', () => {
-        pasteZone.classList.remove('dragover');
-      });
-
-      pasteZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        pasteZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-          handleImageFile(e.dataTransfer.files[0]);
-        }
-      });
-
-      pasteZone.addEventListener('click', () => {
-        inputImage.click();
-      });
-    }
-
-    function setupEventListeners() {
-      addTabBtn.addEventListener('click', (e) => addTab(e));
-
-      selectFormat.addEventListener('change', (e) => {
-        ilvDoc.className = `ilv-document ${e.target.value}`;
-        saveToLocalStorage();
-      });
-
-      inputScale.addEventListener('input', (e) => {
-        const scale = e.target.value;
-        valScale.innerText = `${scale}%`;
-        paperWrapper.style.transform = `scale(${scale / 100})`;
-      });
-
-      paperWrapper.style.transform = `scale(${inputScale.value / 100})`;
-
-      chkExpo.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          dispExpo.classList.add('active');
-        } else {
-          dispExpo.classList.remove('active');
-        }
-        saveToLocalStorage();
-      });
-
-      headerHeight.addEventListener('input', (e) => {
-        valHeaderHeight.innerText = `${e.target.value}%`;
-        dispHeaderBox.style.height = `${e.target.value}%`;
-        saveToLocalStorage();
-      });
-
-      headerFontSize.addEventListener('input', (e) => {
-        valHeaderFont.innerText = `${e.target.value}rem`;
-        dispHeader.style.fontSize = `${e.target.value}rem`;
-        saveToLocalStorage();
-      });
-
-      [calcOldPrice, calcModeMain, calcValMain, calcModeInf, calcValInf].forEach(el => {
-        el.addEventListener('input', () => {
-          updateCalculations();
-          saveToLocalStorage();
-        });
-      });
-
-      ctrlTitle.addEventListener('input', () => { dispTitle.innerText = ctrlTitle.value; saveToLocalStorage(); });
-      ctrlRef.addEventListener('input', () => { dispRef.innerText = ctrlRef.value; saveToLocalStorage(); });
-      ctrlEcoSmall.addEventListener('input', () => { dispEcoSmall.innerText = ctrlEcoSmall.value; saveToLocalStorage(); });
-      ctrlEcoMed.addEventListener('input', () => { dispEcoMed.innerText = ctrlEcoMed.value; saveToLocalStorage(); });
-      ctrlInfHeader.addEventListener('input', () => { dispInfHeader.innerText = ctrlInfHeader.value; saveToLocalStorage(); });
-      ctrlInfEco.addEventListener('input', () => { dispInfEco.innerText = ctrlInfEco.value; saveToLocalStorage(); });
-      ctrlLegal.addEventListener('input', () => { dispLegal.innerText = ctrlLegal.value; saveToLocalStorage(); });
-      inputHeader.addEventListener('input', (e) => { dispHeader.innerText = e.target.value; saveToLocalStorage(); });
-
-      [dispHeader, dispTitle, dispRef, dispEcoSmall, dispEcoMed, dispInfHeader, dispInfEco, dispLegal].forEach(el => {
-        el.addEventListener('blur', () => {
-          saveToLocalStorage();
-          renderTabs();
-        });
-      });
-
-      inputImage.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-          handleImageFile(e.target.files[0]);
-        }
-      });
-
-      imgZoom.addEventListener('input', () => {
-        valZoom.innerText = `${imgZoom.value}%`;
-        updateImageTransform();
-        saveToLocalStorage();
-      });
-
-      imgX.addEventListener('input', () => {
-        valX.innerText = `${imgX.value}px`;
-        updateImageTransform();
-        saveToLocalStorage();
-      });
-
-      imgY.addEventListener('input', () => {
-        valY.innerText = `${imgY.value}px`;
-        updateImageTransform();
-        saveToLocalStorage();
-      });
-    }
-
-    function updateImageTransform() {
-      const scale = imgZoom.value / 100;
-      const x = imgX.value;
-      const y = imgY.value;
-      dispImg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-    }
-
-    window.onload = init;
   </script>
+
 </body>
 </html>
