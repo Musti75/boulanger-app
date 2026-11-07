@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annuaire Magasins Boulanger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #090D16;
+            --surface: #111827;
+            --surface-card: #1E293B;
+            --surface-hover: #334155;
+            --orange-boulanger: #ff6600;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --radius-xl: 20px;
+            --radius-lg: 14px;
+            --shadow-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.7);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        header { margin-bottom: 2rem; text-align: center; }
+        header h1 { font-size: 2.5rem; font-weight: 800; }
+        header h1 span { color: var(--orange-boulanger); }
+        header p { color: var(--text-muted); margin-top: 0.5rem; font-size: 1.1rem; }
+
+        .search-card {
+            background: var(--surface);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1.1rem 1.5rem;
+            font-size: 1.1rem;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border);
+            background: #0F172A;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--orange-boulanger);
+            background: #1E293B;
+        }
+
+        .geo-status { text-align: center; font-size: 0.95rem; color: var(--accent-green); min-height: 1.5rem; font-weight: 500; margin-bottom: 1.5rem; }
+
+        .filters { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem; }
+        .filter-btn {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .filter-btn.active, .filter-btn:hover { background-color: var(--orange-boulanger); color: #fff; border-color: var(--orange-boulanger); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+
+        .card {
+            background-color: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card:hover { transform: translateY(-3px); border-color: var(--orange-boulanger); background-color: var(--surface-hover); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; gap: 0.5rem; }
+        .card-title { font-size: 1.15rem; font-weight: 700; color: #fff; }
+
+        .badge { font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
+        .badge-propre { background-color: rgba(255, 102, 0, 0.15); color: var(--orange-boulanger); }
+        .badge-franchise { background-color: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .badge-dist { display: inline-block; background-color: rgba(16, 185, 129, 0.15); color: var(--accent-green); font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 6px; font-weight: 600; margin-top: 0.8rem; }
+
+        .card-code { font-size: 0.85rem; color: var(--orange-boulanger); font-weight: 600; margin-bottom: 0.4rem; }
+        .card-address { font-size: 0.9rem; color: var(--text-muted); }
+
+        #stateView {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+        }
+
+        .loader-ring {
+            width: 48px; height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--orange-boulanger);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin: 0 auto 1.25rem auto;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .modal-bg {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal {
+            background: var(--surface-card); border: 1px solid var(--border);
+            padding: 2.5rem; border-radius: 16px; max-width: 700px; width: 95%; position: relative;
+        }
+        .close-btn { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--text-muted); font-size: 2rem; cursor: pointer; }
+        .modal h2 { font-size: 2rem; font-weight: 800; }
+        .modal-subtitle { color: var(--orange-boulanger); font-weight: 600; margin-bottom: 2rem; }
+        .info-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .info-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem; }
+        .info-value { font-size: 1.1rem; color: var(--text-main); }
+        .phone-list { list-style: none; margin-top: 0.5rem; }
+        .phone-list li { font-size: 1.1rem; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 8px; }
+        .phone-list strong { color: var(--orange-boulanger); font-family: monospace; font-size: 1.2rem; }
+        .franchise-phone { font-size: 1.4rem; color: var(--accent-blue); font-weight: 700; padding: 0.8rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px; display: inline-block; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Annuaire <span>Boulanger</span></h1>
+        <p>Retrouvez l'intégralité des magasins et leurs coordonnées</p>
+    </header>
+
+    <div class="search-card">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Rechercher un magasin, un code (ex: 035), ou un Code Postal (ex: 75008)...">
+        </div>
+    </div>
+    <div class="geo-status" id="geoStatus"></div>
+
+    <div class="filters">
+        <button class="filter-btn active" onclick="setFilter('all', event)">Tous les magasins</button>
+        <button class="filter-btn" onclick="setFilter('propre', event)">Réseau Propre</button>
+        <button class="filter-btn" onclick="setFilter('franchise', event)">Franchisés</button>
+    </div>
+
+    <!-- Vue de chargement -->
+    <div id="stateView">
+        <div class="loader-ring"></div>
+        <p style="font-weight: 600;">Chargement de l'annuaire depuis Google Sheets...</p>
+    </div>
+
+    <div class="grid" id="storeGrid" style="display: none;"></div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target === this) closeModal()">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/a/macros/boulanger.com/s/AKfycbyazsvEvsoRe5CZ9QnOkmTLYxOQsum1OE7pFxZqFIx8H2IsLqBN_RN3GZbV_QHMZWtJAw/exec';
+
+    let stores = [];
+    let currentFilter = 'all';
+    let userCoords = null;
+    let debounceTimer = null;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchData();
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(handleSearch, 300);
+        });
+    });
+
+    // Remet automatiquement à 3 chiffres (ex: 35 -> 035)
+    function formatStoreCode(code) {
+        if (!code) return '';
+        let strCode = code.toString().trim();
+        if (/^\d+$/.test(strCode)) {
+            return strCode.padStart(3, '0');
+        }
+        return strCode;
+    }
+
+    // Chargement par injection de balise <script> pour le fonctionnement en local (JSONP)
+    function fetchData() {
+        const script = document.createElement('script');
+        
+        window.handleGoogleData = function(data) {
+            if (data && Array.isArray(data)) {
+                stores = data;
+                document.getElementById('stateView').style.display = 'none';
+                document.getElementById('storeGrid').style.display = 'grid';
+                renderStores();
+            } else {
+                showState('Aucune donnée magasin valide récupérée depuis le Google Sheet.');
+            }
+            if (script.parentNode) script.parentNode.removeChild(script);
+        };
+
+        script.src = `${SCRIPT_URL}?callback=handleGoogleData`;
+        script.onerror = function() {
+            showState('Erreur de connexion Google Sheets.<br><small style="color: #ef4444; margin-top: 8px; display: block;">Vérifiez que vous êtes connecté à votre compte Boulanger sur ce navigateur.</small>');
+        };
+        
+        document.body.appendChild(script);
+    }
+
+    function showState(msg) {
+        const container = document.getElementById('stateView');
+        container.innerHTML = `<p style="font-weight:600;">${msg}</p>`;
+        container.style.display = 'block';
+        document.getElementById('storeGrid').style.display = 'none';
+    }
+
+    function calcDistance(lat1, lon1, lat2, lon2) {
+        if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return (R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))).toFixed(1);
+    }
+
+    async function handleSearch() {
+        const val = document.getElementById('searchInput').value.trim();
+        if (/^\d{5}$/.test(val)) {
+            document.getElementById('geoStatus').innerText = "Calcul des distances en cours...";
+            try {
+                const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${val}&type=municipality&limit=1`);
+                const data = await res.json();
+                if (data.features && data.features.length > 0) {
+                    const coords = data.features[0].geometry.coordinates;
+                    userCoords = { lat: coords[1], lon: coords[0] };
+                    document.getElementById('geoStatus').innerText = `📍 Tri par proximité depuis : ${data.features[0].properties.city} (${val})`;
+                } else {
+                    userCoords = null;
+                    document.getElementById('geoStatus').innerText = "";
+                }
+            } catch (e) {
+                userCoords = null;
+                document.getElementById('geoStatus').innerText = "";
+            }
+        } else {
+            userCoords = null;
+            document.getElementById('geoStatus').innerText = "";
+        }
+        renderStores(val);
+    }
+
+    function renderStores(query = '') {
+        const grid = document.getElementById('storeGrid');
+        grid.innerHTML = '';
+        
+        if (!stores || stores.length === 0) return;
+
+        const q = query.toLowerCase();
+
+        let filtered = stores.filter(s => {
+            const formattedCode = formatStoreCode(s.code);
+            const matchFilter = currentFilter === 'all' || s.type === currentFilter;
+            let matchSearch = true;
+            if (q && !/^\d{5}$/.test(q)) {
+                matchSearch = (s.name && s.name.toString().toLowerCase().includes(q)) || 
+                              (formattedCode && formattedCode.toLowerCase().includes(q)) || 
+                              (s.city && s.city.toString().toLowerCase().includes(q));
+            }
+            return matchFilter && matchSearch;
+        });
+
+        if (userCoords) {
+            filtered = filtered.map(s => {
+                const d = s.lat && s.lon ? parseFloat(calcDistance(userCoords.lat, userCoords.lon, s.lat, s.lon)) : null;
+                return { ...s, distance: d };
+            });
+            filtered.sort((a, b) => (a.distance !== null ? a.distance : 9999) - (b.distance !== null ? b.distance : 9999));
+        }
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '<p style="text-align:center; color: var(--text-muted); grid-column: 1/-1; padding: 3rem;">Aucun résultat trouvé pour votre recherche.</p>';
+            return;
+        }
+
+        filtered.forEach(s => {
+            const displayCode = formatStoreCode(s.code);
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => openModal({...s, displayCode});
+            const distBadge = (userCoords && s.distance !== null) ? `<div class="badge-dist">📍 à ${s.distance} km</div>` : '';
+
+            card.innerHTML = `
+                <div>
+                    <div class="card-header">
+                        <div class="card-title">${s.name || ''}</div>
+                        <span class="badge badge-${s.type}">${s.type === 'propre' ? 'Réseau' : 'Franchise'}</span>
+                    </div>
+                    <div class="card-code">Code Site : ${displayCode}</div>
+                    <div class="card-address">${s.address || ''}<br>${s.zip || ''} ${s.city || ''}</div>
+                </div>
+                ${distBadge}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function setFilter(type, evt) {
+        currentFilter = type;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        evt.target.classList.add('active');
+        renderStores(document.getElementById('searchInput').value.trim());
+    }
+
+    function openModal(s) {
+        const content = document.getElementById('modalContent');
+        const code3Digits = s.displayCode || formatStoreCode(s.code);
+
+        let phonesHtml = s.type === 'propre' ? `
+            <div class="info-section">
+                <div class="info-label">Annuaire Téléphonique Interne</div>
+                <ul class="phone-list">
+                    <li><span>Standard Magasin</span> <strong>${code3Digits}100</strong></li>
+                    <li><span>Permanent Magasin</span> <strong>${code3Digits}110</strong></li>
+                    <li><span>Retrait des Achats</span> <strong>${code3Digits}120</strong></li>
+                    <li><span>Service Après-Vente</span> <strong>${code3Digits}130</strong></li>
+                </ul>
+            </div>
+        ` : `
+            <div class="info-section">
+                <div class="info-label">Téléphone Direct</div>
+                <div class="franchise-phone">${s.phone || 'Non renseigné'}</div>
+            </div>
+        `;
+
+        const distHtml = (userCoords && s.distance !== null) 
+            ? `<div class="info-section"><div class="info-label">Distance depuis le code postal</div><div class="info-value" style="color: var(--accent-green);">📍 ${s.distance} km</div></div>` 
+            : '';
+
+        content.innerHTML = `
+            <h2>${s.name || ''}</h2>
+            <div class="modal-subtitle">Code Magasin : ${code3Digits} • Région ${s.region || ''}</div>
+            <div class="info-section">
+                <div class="info-label">Adresse Physique</div>
+                <div class="info-value">${s.address || 'Adresse non renseignée'}<br>${s.zip || ''} ${s.city || ''}</div>
+            </div>
+            ${distHtml}
+            ${phonesHtml}
+        `;
+        document.getElementById('modalBg').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modalBg').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
