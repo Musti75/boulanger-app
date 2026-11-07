@@ -199,7 +199,7 @@
         });
     });
 
-    // Remet automatiquement à 3 chiffres (ex: 35 -> 035)
+    // Remet automatiquement le code magasin à 3 chiffres (ex: 35 -> 035)
     function formatStoreCode(code) {
         if (!code) return '';
         let strCode = code.toString().trim();
@@ -207,6 +207,16 @@
             return strCode.padStart(3, '0');
         }
         return strCode;
+    }
+
+    // Rajoute le '0' initial pour les numéros de téléphone à 9 chiffres
+    function formatPhoneNumber(phone) {
+        if (!phone) return 'Non renseigné';
+        let strPhone = phone.toString().trim().replace(/\s+/g, '');
+        if (/^\d{9}$/.test(strPhone)) {
+            return '0' + strPhone;
+        }
+        return strPhone;
     }
 
     // Chargement par injection de balise <script> pour le fonctionnement en local (JSONP)
@@ -354,7 +364,7 @@
         ` : `
             <div class="info-section">
                 <div class="info-label">Téléphone Direct</div>
-                <div class="franchise-phone">${s.phone || 'Non renseigné'}</div>
+                <div class="franchise-phone">${formatPhoneNumber(s.phone)}</div>
             </div>
         `;
 
