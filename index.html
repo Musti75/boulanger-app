@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portail d'Outils Magasin - Boulanger</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* En-tête principal */
+    header {
+      background: #1e293b;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #e55300;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #e55300;
+    }
+
+    .brand-badge {
+      background: #e55300;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Zone Centrale des Outils */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 50px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .welcome-title {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .welcome-title h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .welcome-title p {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    /* Grille des cartes d'outils */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .tool-card {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      min-height: 240px;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #e55300;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-6px);
+      border-color: #e55300;
+      box-shadow: 0 12px 30px rgba(229, 83, 0, 0.15);
+    }
+
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+
+    .tool-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .tool-info h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .tool-info p {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .tool-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #334155;
+      padding-top: 16px;
+    }
+
+    .action-link {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #e55300;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Pied de page */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #1e293b;
+      color: #64748b;
+      font-size: 0.8rem;
+      border-top: 1px solid #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- En-tête -->
+  <header>
+    <div class="brand-logo">
+      <span>🏷️ BOULANGER</span>
+      <span class="brand-badge">Magasin</span>
+    </div>
+  </header>
+
+  <!-- Contenu Principal -->
+  <main>
+    <div class="welcome-title">
+      <h1>Portail des Outils Métier</h1>
+      <p>Sélectionnez un outil pour accéder à votre espace de travail</p>
+    </div>
+
+    <div class="tools-grid">
+
+      <!-- Éditeur ILV Infinity -->
+      <a href="ilv.html" class="tool-card">
+        <div>
+          <div class="tool-icon">🏷️</div>
+          <div class="tool-info">
+            <h2>Générateur d'ILV Infinity</h2>
+            <p>Création, édition multi-onglets et impression des affiches prix aux normes Boulanger et Club Infinity.</p>
+          </div>
+        </div>
+        <div class="tool-footer">
+          <span class="action-link">Accéder au générateur &rarr;</span>
+        </div>
+      </a>
+
+      <!-- Gestion des Stocks Bviz -->
+      <a href="stock.html" class="tool-card">
+        <div>
+          <div class="tool-icon">📦</div>
+          <div class="tool-info">
+            <h2>Gestion des Stocks Bviz</h2>
+            <p>Importation de vos fichiers CSV de stock pour analyse, recherche de références et état des inventaires.</p>
+          </div>
+        </div>
+        <div class="tool-footer">
+          <span class="action-link">Accéder aux stocks &rarr;</span>
+        </div>
+      </a>
+
+    </div>
+  </main>
+
+  <footer>
+    Outils Magasin Boulanger &bull; Hébergé via GitHub Pages
+  </footer>
+
+</body>
+</html>
