@@ -3,6 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <!-- APP_BUILD : garder identique dans ilv.html, test1.html, index.html et version.json -->
+  <script>
+    window.APP_BUILD = "20261118-4";
+    (function () {
+      var BUILD = window.APP_BUILD;
+      var HOST = "musti75.github.io";
+      var REPO = "Musti75/boulanger-app";
+      var ATTEMPT = "ilv_reload_for";
+      var PENDING = "ilv_remote_pending";
+      var SW_UP = "ilv_sw_upgraded";
+      var pendingRemote = "";
+
+      window.appPageUrl = function (page, params) {
+        var url = new URL(page, location.href);
+        url.search = "";
+        url.hash = "";
+        if (params) {
+          Object.keys(params).forEach(function (key) {
+            if (params[key] != null && params[key] !== "") url.searchParams.set(key, String(params[key]));
+          });
+        }
+        url.searchParams.set("v", BUILD);
+        return url.pathname + url.search;
+      };
+
+      function storageGet(key) {
+        try { return sessionStorage.getItem(key) || ""; } catch (e) { return ""; }
+      }
+      function storageSet(key, value) {
+        try { sessionStorage.setItem(key, value); } catch (e) {}
+      }
+      function storageRemove(key) {
+        try { sessionStorage.removeItem(key); } catch (e) {}
+      }
+      function decodeB64(b64) {
+        var bin = atob(String(b64).replace(/\s/g, ""));
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return new TextDecoder("utf-8").decode(bytes);
+      }
+      function pageFile() {
+        var name = location.pathname.split("/").pop() || "index.html";
+        return /\.html$/i.test(name) ? name : "index.html";
+      }
+      function replaceWithVersion(version) {
+        if (!version || version === BUILD || storageGet(ATTEMPT) === version) return;
+        storageSet(ATTEMPT, version);
+        var url = new URL(location.href);
+        url.searchParams.set("v", version);
+        location.replace(url.pathname + url.search + url.hash);
+      }
+      function readVersion(data) {
+        if (!data) return "";
+        if (typeof data.version === "string") return data.version;
+        if (data.content) {
+          try { return JSON.parse(decodeB64(data.content)).version || ""; } catch (e) { return ""; }
+        }
+        return "";
+      }
+
+      if (location.hostname === HOST && "serviceWorker" in navigator) {
+        navigator.serviceWorker.addEventListener("controllerchange", function () {
+          var remote = pendingRemote || storageGet(PENDING);
+          if (!remote || remote === BUILD || storageGet(SW_UP) === remote) return;
+          storageSet(SW_UP, remote);
+          location.reload();
+        });
+        navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(function () {});
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        var links = document.querySelectorAll("a[href]");
+        for (var i = 0; i < links.length; i++) {
+          var href = links[i].getAttribute("href");
+          if (href === "ilv.html" || href === "test1.html" || href === "index.html") {
+            links[i].setAttribute("href", window.appPageUrl(href));
+          }
+        }
+      });
+
+      function upgrade(version) {
+        if (!version || version === BUILD) {
+          storageRemove(PENDING);
+          return;
+        }
+        if (storageGet(ATTEMPT) === version) return;
+        pendingRemote = version;
+        storageSet(PENDING, version);
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          storageSet(ATTEMPT, version);
+          location.reload();
+          return;
+        }
+        if (location.hostname !== HOST) {
+          replaceWithVersion(version);
+          return;
+        }
+        fetch("https://api.github.com/repos/" + REPO + "/contents/" + encodeURIComponent(pageFile()) + "?ref=main", {
+          cache: "no-store",
+          headers: { "Accept": "application/vnd.github+json" }
+        }).then(function (response) {
+          return response.ok ? response.json() : null;
+        }).then(function (data) {
+          if (!data || !data.content) {
+            replaceWithVersion(version);
+            return;
+          }
+          var html = decodeB64(data.content);
+          var found = html.match(/APP_BUILD\s*=\s*"([^"]+)"/);
+          if (!found || found[1] !== version) {
+            replaceWithVersion(version);
+            return;
+          }
+          storageSet(ATTEMPT, version);
+          document.open();
+          document.write(html);
+          document.close();
+        }).catch(function () {
+          replaceWithVersion(version);
+        });
+      }
+
+      var controlled = navigator.serviceWorker && navigator.serviceWorker.controller;
+      var versionUrl = location.hostname === HOST && !controlled
+        ? "https://api.github.com/repos/" + REPO + "/contents/version.json?ref=main"
+        : new URL("version.json?t=" + Date.now(), location.href).href;
+      fetch(versionUrl, {
+        cache: "no-store",
+        headers: location.hostname === HOST && !controlled ? { "Accept": "application/vnd.github+json" } : {}
+      }).then(function (response) {
+        return response.ok ? response.json() : null;
+      }).then(readVersion).then(upgrade).catch(function () {});
+    })();
+  </script>
   <title>Portail d'Outils Magasin - Boulanger</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
