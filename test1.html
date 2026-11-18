@@ -245,14 +245,6 @@
       color: white !important;
     }
 
-    .ilv-badges {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      width: 100%;
-    }
-    .ilv-badges:not(:has(.active)) { display: none; }
-
     .ilv-expo-banner,
     .ilv-unboxed-banner {
       background-color: #dc2626 !important;
@@ -436,10 +428,18 @@
       return value == null || value === '' ? defaultEcoText : value;
     }
 
+    // Exposition prioritaire : les deux cases ne peuvent pas être vraies en même temps.
+    function normalizeStatus(tab) {
+      if (!tab) return;
+      const isExpo = !!tab.isExpo;
+      tab.isExpo = isExpo;
+      tab.isUnboxed = !!tab.isUnboxed && !isExpo;
+    }
+
     function badgesHtml(tab) {
-      const expoOn = !!(tab && tab.isExpo);
-      const unboxedOn = !!(tab && tab.isUnboxed);
-      return `<div class="ilv-badges"><div class="ilv-expo-banner${expoOn ? ' active' : ''}">MODÈLE D'EXPOSITION</div><div class="ilv-unboxed-banner${unboxedOn ? ' active' : ''}">PRODUIT DÉBALLÉ</div></div>`;
+      const isExpo = !!(tab && tab.isExpo);
+      const isUnboxed = !!(tab && tab.isUnboxed) && !isExpo;
+      return `<div class="ilv-expo-banner${isExpo ? ' active' : ''}">MODÈLE D'EXPOSITION</div><div class="ilv-unboxed-banner${isUnboxed ? ' active' : ''}">PRODUIT DÉBALLÉ</div>`;
     }
 
     let tabs = [];
@@ -454,6 +454,7 @@
           const parsed = JSON.parse(saved);
           if (parsed.tabs && parsed.tabs.length > 0) {
             tabs = parsed.tabs;
+            tabs.forEach(normalizeStatus);
             nextTabId = parsed.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
             activeTabId = parsed.activeTabId || tabs[0].id;
           }
@@ -496,9 +497,7 @@
     }
 
     function saveToLocalStorage() {
-      tabs.forEach(tab => {
-        if (typeof tab.isUnboxed !== 'boolean') tab.isUnboxed = false;
-      });
+      tabs.forEach(normalizeStatus);
       const projectData = {
         version: PROJECT_VERSION,
         activeTabId: activeTabId,

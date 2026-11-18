@@ -424,18 +424,7 @@
       color: white !important;
     }
 
-    /* Pastilles de statut : exposition et produit déballé */
-    .ilv-badges {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      width: 100%;
-    }
-
-    .ilv-badges:not(:has(.active)) {
-      display: none;
-    }
-
+    /* Une seule pastille à la fois : exposition ou produit déballé */
     .ilv-expo-banner,
     .ilv-unboxed-banner {
       background-color: #dc2626 !important;
@@ -675,7 +664,6 @@
     .ilv-document.format-a5 .ilv-legal-footer { max-height: 75px; font-size: 0.42rem; }
 
     .ilv-document.format-a6 { font-size: 50%; }
-    .ilv-document.format-a6 .ilv-badges { gap: 2px; }
     .ilv-document.format-a6 .ilv-expo-banner,
     .ilv-document.format-a6 .ilv-unboxed-banner { font-size: 0.75rem; padding: 2px; }
     .ilv-document.format-a6 .ilv-product-title { font-size: 0.75rem; }
@@ -963,10 +951,8 @@
             <div class="ilv-header-title" id="disp-header" contenteditable="true">Bons plans</div>
           </div>
 
-          <div class="ilv-badges">
-            <div class="ilv-expo-banner" id="disp-expo">MODÈLE D'EXPOSITION</div>
-            <div class="ilv-unboxed-banner" id="disp-unboxed">PRODUIT DÉBALLÉ</div>
-          </div>
+          <div class="ilv-expo-banner" id="disp-expo">MODÈLE D'EXPOSITION</div>
+          <div class="ilv-unboxed-banner" id="disp-unboxed">PRODUIT DÉBALLÉ</div>
 
           <div class="ilv-body">
             
@@ -1030,10 +1016,18 @@
       return value == null || value === '' ? defaultEcoText : value;
     }
 
+    // Exposition prioritaire : les deux cases ne peuvent pas être vraies en même temps.
+    function normalizeStatus(tab) {
+      if (!tab) return;
+      const isExpo = !!tab.isExpo;
+      tab.isExpo = isExpo;
+      tab.isUnboxed = !!tab.isUnboxed && !isExpo;
+    }
+
     function badgesHtml(tab) {
-      const expoOn = !!(tab && tab.isExpo);
-      const unboxedOn = !!(tab && tab.isUnboxed);
-      return `<div class="ilv-badges"><div class="ilv-expo-banner${expoOn ? ' active' : ''}">MODÈLE D'EXPOSITION</div><div class="ilv-unboxed-banner${unboxedOn ? ' active' : ''}">PRODUIT DÉBALLÉ</div></div>`;
+      const isExpo = !!(tab && tab.isExpo);
+      const isUnboxed = !!(tab && tab.isUnboxed) && !isExpo;
+      return `<div class="ilv-expo-banner${isExpo ? ' active' : ''}">MODÈLE D'EXPOSITION</div><div class="ilv-unboxed-banner${isUnboxed ? ' active' : ''}">PRODUIT DÉBALLÉ</div>`;
     }
 
     let tabs = [
@@ -1138,6 +1132,7 @@
           const parsed = JSON.parse(saved);
           if (parsed.tabs && parsed.tabs.length > 0) {
             tabs = parsed.tabs;
+            tabs.forEach(normalizeStatus);
             nextTabId = parsed.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
             activeTabId = parsed.activeTabId || tabs[0].id;
           }
@@ -1157,9 +1152,7 @@
     }
 
     function persistProject() {
-      tabs.forEach(tab => {
-        if (typeof tab.isUnboxed !== 'boolean') tab.isUnboxed = false;
-      });
+      tabs.forEach(normalizeStatus);
       const projectData = {
         version: PROJECT_VERSION,
         activeTabId: activeTabId,
@@ -1282,7 +1275,7 @@
       tab.headerHeight = parseInt(headerHeight.value);
       tab.headerFontSize = parseFloat(headerFontSize.value);
       tab.isExpo = chkExpo.checked;
-      tab.isUnboxed = chkUnboxed.checked;
+      tab.isUnboxed = chkUnboxed.checked && !chkExpo.checked;
 
       tab.title = dispTitle.innerText;
       tab.ref = dispRef.innerText;
@@ -1321,10 +1314,11 @@
       dispHeaderBox.style.height = `${headerHeight.value}%`;
       dispHeader.style.fontSize = `${headerFontSize.value}rem`;
 
-      chkExpo.checked = !!tab.isExpo;
-      dispExpo.classList.toggle('active', !!tab.isExpo);
-      chkUnboxed.checked = !!tab.isUnboxed;
-      dispUnboxed.classList.toggle('active', !!tab.isUnboxed);
+      normalizeStatus(tab);
+      chkExpo.checked = tab.isExpo;
+      dispExpo.classList.toggle('active', tab.isExpo);
+      chkUnboxed.checked = tab.isUnboxed;
+      dispUnboxed.classList.toggle('active', tab.isUnboxed);
 
       ctrlTitle.value = tab.title || '';
       ctrlRef.value = tab.ref || '';
@@ -1567,12 +1561,16 @@
       paperWrapper.style.transform = `scale(${inputScale.value / 100})`;
 
       chkExpo.addEventListener('change', () => {
+        if (chkExpo.checked) chkUnboxed.checked = false;
         dispExpo.classList.toggle('active', chkExpo.checked);
+        dispUnboxed.classList.toggle('active', chkUnboxed.checked);
         saveToLocalStorage();
       });
 
       chkUnboxed.addEventListener('change', () => {
+        if (chkUnboxed.checked) chkExpo.checked = false;
         dispUnboxed.classList.toggle('active', chkUnboxed.checked);
+        dispExpo.classList.toggle('active', chkExpo.checked);
         saveToLocalStorage();
       });
 
