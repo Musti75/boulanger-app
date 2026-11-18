@@ -4,6 +4,143 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <!-- APP_BUILD : garder identique dans ilv.html, test1.html, index.html et version.json -->
+  <script>
+    window.APP_BUILD = "20261118-4";
+    (function () {
+      var BUILD = window.APP_BUILD;
+      var HOST = "musti75.github.io";
+      var REPO = "Musti75/boulanger-app";
+      var ATTEMPT = "ilv_reload_for";
+      var PENDING = "ilv_remote_pending";
+      var SW_UP = "ilv_sw_upgraded";
+      var pendingRemote = "";
+
+      window.appPageUrl = function (page, params) {
+        var url = new URL(page, location.href);
+        url.search = "";
+        url.hash = "";
+        if (params) {
+          Object.keys(params).forEach(function (key) {
+            if (params[key] != null && params[key] !== "") url.searchParams.set(key, String(params[key]));
+          });
+        }
+        url.searchParams.set("v", BUILD);
+        return url.pathname + url.search;
+      };
+
+      function storageGet(key) {
+        try { return sessionStorage.getItem(key) || ""; } catch (e) { return ""; }
+      }
+      function storageSet(key, value) {
+        try { sessionStorage.setItem(key, value); } catch (e) {}
+      }
+      function storageRemove(key) {
+        try { sessionStorage.removeItem(key); } catch (e) {}
+      }
+      function decodeB64(b64) {
+        var bin = atob(String(b64).replace(/\s/g, ""));
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return new TextDecoder("utf-8").decode(bytes);
+      }
+      function pageFile() {
+        var name = location.pathname.split("/").pop() || "index.html";
+        return /\.html$/i.test(name) ? name : "index.html";
+      }
+      function replaceWithVersion(version) {
+        if (!version || version === BUILD || storageGet(ATTEMPT) === version) return;
+        storageSet(ATTEMPT, version);
+        var url = new URL(location.href);
+        url.searchParams.set("v", version);
+        location.replace(url.pathname + url.search + url.hash);
+      }
+      function readVersion(data) {
+        if (!data) return "";
+        if (typeof data.version === "string") return data.version;
+        if (data.content) {
+          try { return JSON.parse(decodeB64(data.content)).version || ""; } catch (e) { return ""; }
+        }
+        return "";
+      }
+
+      if (location.hostname === HOST && "serviceWorker" in navigator) {
+        navigator.serviceWorker.addEventListener("controllerchange", function () {
+          var remote = pendingRemote || storageGet(PENDING);
+          if (!remote || remote === BUILD || storageGet(SW_UP) === remote) return;
+          storageSet(SW_UP, remote);
+          location.reload();
+        });
+        navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(function () {});
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        var links = document.querySelectorAll("a[href]");
+        for (var i = 0; i < links.length; i++) {
+          var href = links[i].getAttribute("href");
+          if (href === "ilv.html" || href === "test1.html" || href === "index.html") {
+            links[i].setAttribute("href", window.appPageUrl(href));
+          }
+        }
+      });
+
+      function upgrade(version) {
+        if (!version || version === BUILD) {
+          storageRemove(PENDING);
+          return;
+        }
+        if (storageGet(ATTEMPT) === version) return;
+        pendingRemote = version;
+        storageSet(PENDING, version);
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          storageSet(ATTEMPT, version);
+          location.reload();
+          return;
+        }
+        if (location.hostname !== HOST) {
+          replaceWithVersion(version);
+          return;
+        }
+        fetch("https://api.github.com/repos/" + REPO + "/contents/" + encodeURIComponent(pageFile()) + "?ref=main", {
+          cache: "no-store",
+          headers: { "Accept": "application/vnd.github+json" }
+        }).then(function (response) {
+          return response.ok ? response.json() : null;
+        }).then(function (data) {
+          if (!data || !data.content) {
+            replaceWithVersion(version);
+            return;
+          }
+          var html = decodeB64(data.content);
+          var found = html.match(/APP_BUILD\s*=\s*"([^"]+)"/);
+          if (!found || found[1] !== version) {
+            replaceWithVersion(version);
+            return;
+          }
+          storageSet(ATTEMPT, version);
+          document.open();
+          document.write(html);
+          document.close();
+        }).catch(function () {
+          replaceWithVersion(version);
+        });
+      }
+
+      var controlled = navigator.serviceWorker && navigator.serviceWorker.controller;
+      var versionUrl = location.hostname === HOST && !controlled
+        ? "https://api.github.com/repos/" + REPO + "/contents/version.json?ref=main"
+        : new URL("version.json?t=" + Date.now(), location.href).href;
+      fetch(versionUrl, {
+        cache: "no-store",
+        headers: location.hostname === HOST && !controlled ? { "Accept": "application/vnd.github+json" } : {}
+      }).then(function (response) {
+        return response.ok ? response.json() : null;
+      }).then(readVersion).then(upgrade).catch(function () {});
+    })();
+  </script>
   <title>Générateur d'ILV Boulanger - Éditeur</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
@@ -260,6 +397,22 @@
       cursor: pointer;
     }
 
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .checkbox-row .checkbox-group {
+      flex: 1 1 150px;
+      min-width: 0;
+    }
+
+    .checkbox-row .checkbox-group label {
+      font-size: 0.74rem;
+      line-height: 1.25;
+    }
+
     /* Zone Coller / Glisser Image */
     .paste-zone {
       border: 2px dashed #cbd5e1;
@@ -408,8 +561,9 @@
       color: white !important;
     }
 
-    /* Modèle d'exposition */
-    .ilv-expo-banner {
+    /* Une seule pastille à la fois : exposition ou produit déballé */
+    .ilv-expo-banner,
+    .ilv-unboxed-banner {
       background-color: #dc2626 !important;
       color: white !important;
       font-weight: 900;
@@ -423,7 +577,8 @@
       print-color-adjust: exact !important;
     }
 
-    .ilv-expo-banner.active {
+    .ilv-expo-banner.active,
+    .ilv-unboxed-banner.active {
       display: block;
     }
 
@@ -634,7 +789,8 @@
 
     /* Adapteurs de taille selon le format */
     .ilv-document.format-a5 { font-size: 70%; }
-    .ilv-document.format-a5 .ilv-expo-banner { font-size: 1rem; padding: 4px; }
+    .ilv-document.format-a5 .ilv-expo-banner,
+    .ilv-document.format-a5 .ilv-unboxed-banner { font-size: 1rem; padding: 4px; }
     .ilv-document.format-a5 .ilv-product-title { font-size: 1rem; }
     .ilv-document.format-a5 .ilv-product-ref { font-size: 0.9rem; }
     .ilv-document.format-a5 .ilv-old-price { font-size: 2.4rem; }
@@ -645,7 +801,8 @@
     .ilv-document.format-a5 .ilv-legal-footer { max-height: 75px; font-size: 0.42rem; }
 
     .ilv-document.format-a6 { font-size: 50%; }
-    .ilv-document.format-a6 .ilv-expo-banner { font-size: 0.75rem; padding: 2px; }
+    .ilv-document.format-a6 .ilv-expo-banner,
+    .ilv-document.format-a6 .ilv-unboxed-banner { font-size: 0.75rem; padding: 2px; }
     .ilv-document.format-a6 .ilv-product-title { font-size: 0.75rem; }
     .ilv-document.format-a6 .ilv-product-ref { font-size: 0.65rem; }
     .ilv-document.format-a6 .ilv-old-price { font-size: 1.6rem; }
@@ -794,9 +951,15 @@
         <h3>Prix & Remises</h3>
 
         <div class="form-group">
-          <div class="checkbox-group">
-            <input type="checkbox" id="chk-expo">
-            <label for="chk-expo">MODÈLE D'EXPOSITION</label>
+          <div class="checkbox-row">
+            <div class="checkbox-group">
+              <input type="checkbox" id="chk-expo">
+              <label for="chk-expo">MODÈLE D'EXPOSITION</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="chk-unboxed">
+              <label for="chk-unboxed">Produit déballé</label>
+            </div>
           </div>
         </div>
 
@@ -925,9 +1088,8 @@
             <div class="ilv-header-title" id="disp-header" contenteditable="true">Bons plans</div>
           </div>
 
-          <div class="ilv-expo-banner" id="disp-expo">
-            MODÈLE D'EXPOSITION
-          </div>
+          <div class="ilv-expo-banner" id="disp-expo">MODÈLE D'EXPOSITION</div>
+          <div class="ilv-unboxed-banner" id="disp-unboxed">PRODUIT DÉBALLÉ</div>
 
           <div class="ilv-body">
             
@@ -945,11 +1107,11 @@
                     <span class="ilv-old-price" id="disp-old-price" contenteditable="true">1299€</span>
                     <div class="ilv-strike-line"></div>
                   </div>
-                  <div class="ilv-eco-tax-small" id="disp-eco-small" contenteditable="true">Dont 3.89 d'éco-participation</div>
+                  <div class="ilv-eco-tax-small" id="disp-eco-small" contenteditable="true">Dont 3.98€ d'éco-participation</div>
                 </div>
 
                 <div class="ilv-current-price" id="disp-price" contenteditable="true">1100€</div>
-                <div class="ilv-eco-tax-medium" id="disp-eco-med" contenteditable="true">Dont 3.89€ d'éco-participation</div>
+                <div class="ilv-eco-tax-medium" id="disp-eco-med" contenteditable="true">Dont 3.98€ d'éco-participation</div>
               </div>
             </div>
 
@@ -963,9 +1125,7 @@
                   <img src="https://boulanger.scene7.com/is/image/Boulanger/Logo_Club_RVB_Cocarde_Infinity_RVB?fmt=png-alpha" alt="Boulanger Le Club Infinity" class="ilv-infinity-logo-img">
                 </div>
               </div>
-              <div class="ilv-infinity-eco" id="disp-inf-eco" contenteditable="true">
-                Dont 3.89€ d'éco-participation
-              </div>
+              <div class="ilv-infinity-eco" id="disp-inf-eco" contenteditable="true">Dont 3.98€ d'éco-participation</div>
             </div>
 
             <div class="ilv-legal-footer" id="disp-legal" contenteditable="true">
@@ -984,6 +1144,29 @@
   <script>
     const defaultLegalText = `- La remise sera déduite de la facture totale pour tout client déjà adhérent à l’assurance Le Club INFINITY ou pour toute nouvelle adhésion à l’assurance Le Club INFINITY réalisée le même jour que l’achat en magasin. Voir conditions, garanties et exclusions dans la notice d’information de l’assurance Le Club INFINITY. Le Club INFINITY est un contrat d’assurance collective de dommages n°4033, souscrit par Boulanger SA au capital de 40 611 564 € - 347 384 570 RCS Lille métropole - Siège social : Avenue de la Motte 59810 LESQUIN ; par l’intermédiaire de Cofidis, SA à directoire et conseil de surveillance au capital social de 67 500 000€ situé Parc de la Haute-Borne, 61 avenue Halley, Villeneuve d’Ascq 59866, immatriculé au RCS de Lille Métropole sous le numéro 325 307 106 et immatriculé auprès de l’ORIAS sous le numéro 07 023 493 en qualité de Courtier d’assurances; auprès de CARDIF Assurances Risques Divers - S.A. au capital de 21 602 240 € - 308 896 547 RCS Paris - Siège social : 1 Boulevard Haussmann 75009 Paris - Entreprise régie par le Code des assurances.`;
 
+    // Valeur par défaut des nouvelles fiches et des replis vides. Les montants déjà enregistrés ne sont pas réécrits.
+    const defaultEcoText = "Dont 3.98€ d'éco-participation";
+    // 1.1 ajoute isUnboxed. Les projets 1.0 (sans ce champ) restent chargeables.
+    const PROJECT_VERSION = "1.1";
+
+    function ecoText(value) {
+      return value == null || value === '' ? defaultEcoText : value;
+    }
+
+    // Exposition prioritaire : les deux cases ne peuvent pas être vraies en même temps.
+    function normalizeStatus(tab) {
+      if (!tab) return;
+      const isExpo = !!tab.isExpo;
+      tab.isExpo = isExpo;
+      tab.isUnboxed = !!tab.isUnboxed && !isExpo;
+    }
+
+    function badgesHtml(tab) {
+      const isExpo = !!(tab && tab.isExpo);
+      const isUnboxed = !!(tab && tab.isUnboxed) && !isExpo;
+      return `<div class="ilv-expo-banner${isExpo ? ' active' : ''}">MODÈLE D'EXPOSITION</div><div class="ilv-unboxed-banner${isUnboxed ? ' active' : ''}">PRODUIT DÉBALLÉ</div>`;
+    }
+
     let tabs = [
       {
         id: 1,
@@ -993,6 +1176,7 @@
         headerHeight: 27,
         headerFontSize: 6.6,
         isExpo: false,
+        isUnboxed: false,
         title: 'Description du produit',
         ref: '1222898',
         oldPriceVal: 1299,
@@ -1000,10 +1184,10 @@
         valMain: 1100,
         modeInf: 'price',
         valInf: 779,
-        ecoSmall: `Dont 3.89€ d'éco-participation`,
-        ecoMed: `Dont 3.89€ d'éco-participation`,
+        ecoSmall: defaultEcoText,
+        ecoMed: defaultEcoText,
         infHeader: 'Pour tout nouvel adhérent au Club INFINITY*',
-        infEco: `Dont 3.89€ d'éco-participation`,
+        infEco: defaultEcoText,
         legal: defaultLegalText,
         imgSrc: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80',
         zoom: 100,
@@ -1042,6 +1226,8 @@
 
     const chkExpo = document.getElementById('chk-expo');
     const dispExpo = document.getElementById('disp-expo');
+    const chkUnboxed = document.getElementById('chk-unboxed');
+    const dispUnboxed = document.getElementById('disp-unboxed');
 
     const ctrlTitle = document.getElementById('ctrl-title');
     const ctrlRef = document.getElementById('ctrl-ref');
@@ -1083,6 +1269,7 @@
           const parsed = JSON.parse(saved);
           if (parsed.tabs && parsed.tabs.length > 0) {
             tabs = parsed.tabs;
+            tabs.forEach(normalizeStatus);
             nextTabId = parsed.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
             activeTabId = parsed.activeTabId || tabs[0].id;
           }
@@ -1101,25 +1288,31 @@
       setupClipboardAndDrag();
     }
 
-    function saveToLocalStorage() {
-      saveCurrentTabData();
+    function persistProject() {
+      tabs.forEach(normalizeStatus);
       const projectData = {
-        version: "1.0",
+        version: PROJECT_VERSION,
         activeTabId: activeTabId,
         nextTabId: nextTabId,
         tabs: tabs
       };
       localStorage.setItem('boulanger_ilv_project', JSON.stringify(projectData));
+      return projectData;
+    }
+
+    function saveToLocalStorage() {
+      saveCurrentTabData();
+      return persistProject();
     }
 
     function openGallery() {
       saveToLocalStorage();
-      window.location.href = 'test1.html';
+      window.location.href = window.appPageUrl('test1.html');
     }
 
     function openTuto() {
       saveToLocalStorage();
-      window.location.href = 'tuto_visuel.html';
+      window.location.href = window.appPageUrl('tuto_visuel.html');
     }
 
     function renderTabs() {
@@ -1155,6 +1348,7 @@
         headerHeight: 27,
         headerFontSize: 6.6,
         isExpo: false,
+        isUnboxed: false,
         title: 'Description du produit',
         ref: '000000',
         oldPriceVal: 1000,
@@ -1162,10 +1356,10 @@
         valMain: 800,
         modeInf: 'price',
         valInf: 600,
-        ecoSmall: `Dont 3.89€ d'éco-participation`,
-        ecoMed: `Dont 3.89€ d'éco-participation`,
+        ecoSmall: defaultEcoText,
+        ecoMed: defaultEcoText,
         infHeader: 'Pour tout nouvel adhérent au Club INFINITY*',
-        infEco: `Dont 3.89€ d'éco-participation`,
+        infEco: defaultEcoText,
         legal: defaultLegalText,
         imgSrc: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80',
         zoom: 100,
@@ -1177,12 +1371,7 @@
       activeTabId = nextTabId;
       nextTabId++;
 
-      localStorage.setItem('boulanger_ilv_project', JSON.stringify({
-        version: "1.0",
-        activeTabId: activeTabId,
-        nextTabId: nextTabId,
-        tabs: tabs
-      }));
+      persistProject();
 
       renderTabs();
       loadTabData(activeTabId);
@@ -1223,6 +1412,7 @@
       tab.headerHeight = parseInt(headerHeight.value);
       tab.headerFontSize = parseFloat(headerFontSize.value);
       tab.isExpo = chkExpo.checked;
+      tab.isUnboxed = chkUnboxed.checked && !chkExpo.checked;
 
       tab.title = dispTitle.innerText;
       tab.ref = dispRef.innerText;
@@ -1261,12 +1451,11 @@
       dispHeaderBox.style.height = `${headerHeight.value}%`;
       dispHeader.style.fontSize = `${headerFontSize.value}rem`;
 
-      chkExpo.checked = !!tab.isExpo;
-      if (tab.isExpo) {
-        dispExpo.classList.add('active');
-      } else {
-        dispExpo.classList.remove('active');
-      }
+      normalizeStatus(tab);
+      chkExpo.checked = tab.isExpo;
+      dispExpo.classList.toggle('active', tab.isExpo);
+      chkUnboxed.checked = tab.isUnboxed;
+      dispUnboxed.classList.toggle('active', tab.isUnboxed);
 
       ctrlTitle.value = tab.title || '';
       ctrlRef.value = tab.ref || '';
@@ -1277,19 +1466,19 @@
       calcModeInf.value = tab.modeInf || 'price';
       calcValInf.value = tab.valInf !== undefined ? tab.valInf : 600;
 
-      ctrlEcoSmall.value = tab.ecoSmall || '';
-      ctrlEcoMed.value = tab.ecoMed || '';
+      ctrlEcoSmall.value = ecoText(tab.ecoSmall);
+      ctrlEcoMed.value = ecoText(tab.ecoMed);
       ctrlInfHeader.value = tab.infHeader || '';
-      ctrlInfEco.value = tab.infEco || '';
+      ctrlInfEco.value = ecoText(tab.infEco);
       ctrlLegal.value = tab.legal || defaultLegalText;
 
       dispHeader.innerText = tab.header || 'Bons plans';
       dispTitle.innerText = tab.title || '';
       dispRef.innerText = tab.ref || '';
-      dispEcoSmall.innerText = tab.ecoSmall || '';
-      dispEcoMed.innerText = tab.ecoMed || '';
+      dispEcoSmall.innerText = ecoText(tab.ecoSmall);
+      dispEcoMed.innerText = ecoText(tab.ecoMed);
       dispInfHeader.innerText = tab.infHeader || '';
-      dispInfEco.innerText = tab.infEco || '';
+      dispInfEco.innerText = ecoText(tab.infEco);
       dispLegal.innerText = tab.legal || defaultLegalText;
 
       dispImg.src = tab.imgSrc || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80';
@@ -1360,9 +1549,7 @@
             <div class="ilv-header" style="height:${tab.headerHeight}%;">
               <div class="ilv-header-title" style="font-size:${tab.headerFontSize}rem;">${tab.header}</div>
             </div>
-            <div class="ilv-expo-banner ${tab.isExpo ? 'active' : ''}">
-              MODÈLE D'EXPOSITION
-            </div>
+            ${badgesHtml(tab)}
             <div class="ilv-body">
               <div class="ilv-main-content">
                 <div class="ilv-image-container">
@@ -1376,10 +1563,10 @@
                       <span class="ilv-old-price">${oldP}€</span>
                       <div class="ilv-strike-line"></div>
                     </div>
-                    <div class="ilv-eco-tax-small">${tab.ecoSmall}</div>
+                    <div class="ilv-eco-tax-small">${ecoText(tab.ecoSmall)}</div>
                   </div>
                   <div class="ilv-current-price">${Math.round(finalMainP)}€</div>
-                  <div class="ilv-eco-tax-medium">${tab.ecoMed}</div>
+                  <div class="ilv-eco-tax-medium">${ecoText(tab.ecoMed)}</div>
                 </div>
               </div>
               <div class="ilv-infinity-box">
@@ -1390,7 +1577,7 @@
                     <img src="https://boulanger.scene7.com/is/image/Boulanger/Logo_Club_RVB_Cocarde_Infinity_RVB?fmt=png-alpha" class="ilv-infinity-logo-img">
                   </div>
                 </div>
-                <div class="ilv-infinity-eco">${tab.infEco}</div>
+                <div class="ilv-infinity-eco">${ecoText(tab.infEco)}</div>
               </div>
               <div class="ilv-legal-footer">${tab.legal}</div>
             </div>
@@ -1403,13 +1590,7 @@
     }
 
     function saveProjectJSON() {
-      saveToLocalStorage();
-      const projectData = {
-        version: "1.0",
-        activeTabId: activeTabId,
-        nextTabId: nextTabId,
-        tabs: tabs
-      };
+      const projectData = saveToLocalStorage();
       const jsonStr = JSON.stringify(projectData, null, 2);
       const blob = new Blob([jsonStr], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -1438,12 +1619,8 @@
 
             nextTabId = projectData.nextTabId || (Math.max(...tabs.map(t => t.id)) + 1);
 
-            localStorage.setItem('boulanger_ilv_project', JSON.stringify({
-              version: "1.0",
-              activeTabId: activeTabId,
-              nextTabId: nextTabId,
-              tabs: tabs
-            }));
+            // 1.0 et 1.1 : les montants d'éco-participation du fichier sont conservés tels quels.
+            persistProject();
 
             renderTabs();
             loadTabData(activeTabId);
@@ -1520,12 +1697,17 @@
 
       paperWrapper.style.transform = `scale(${inputScale.value / 100})`;
 
-      chkExpo.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          dispExpo.classList.add('active');
-        } else {
-          dispExpo.classList.remove('active');
-        }
+      chkExpo.addEventListener('change', () => {
+        if (chkExpo.checked) chkUnboxed.checked = false;
+        dispExpo.classList.toggle('active', chkExpo.checked);
+        dispUnboxed.classList.toggle('active', chkUnboxed.checked);
+        saveToLocalStorage();
+      });
+
+      chkUnboxed.addEventListener('change', () => {
+        if (chkUnboxed.checked) chkExpo.checked = false;
+        dispUnboxed.classList.toggle('active', chkUnboxed.checked);
+        dispExpo.classList.toggle('active', chkExpo.checked);
         saveToLocalStorage();
       });
 
