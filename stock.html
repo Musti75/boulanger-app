@@ -40,6 +40,58 @@
             background: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
         }
+        .touch-check {
+            accent-color: #2563eb;
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+        #pdfPrintSheet { display: none; }
+        @media print {
+            body.printing-selection { background: #fff !important; }
+            body.printing-selection * { visibility: hidden; }
+            body.printing-selection #pdfPrintSheet,
+            body.printing-selection #pdfPrintSheet * { visibility: visible; }
+            body.printing-selection #pdfPrintSheet {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: #fff;
+                color: #111;
+                padding: 0;
+            }
+            body.printing-selection #pdfPrintSheet h1 {
+                font-size: 18px;
+                margin: 0 0 4px;
+            }
+            body.printing-selection #pdfPrintSheet .meta {
+                margin: 0 0 12px;
+                font-size: 12px;
+                color: #333;
+            }
+            body.printing-selection #pdfPrintSheet table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 11px;
+            }
+            body.printing-selection #pdfPrintSheet th,
+            body.printing-selection #pdfPrintSheet td {
+                border: 1px solid #ccc;
+                padding: 4px 6px;
+                text-align: left;
+                vertical-align: top;
+            }
+            body.printing-selection #pdfPrintSheet th {
+                background: #2563eb;
+                color: #fff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body.printing-selection #pdfPrintSheet .r { text-align: right; }
+            body.printing-selection #pdfPrintSheet .c { text-align: center; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
@@ -172,10 +224,28 @@
 
         <!-- Tableau des données -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/60 overflow-hidden">
+            <div class="px-4 sm:px-6 py-3 border-b border-gray-100 dark:border-slate-700 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
+                <button type="button" id="selectAllBtn" title="Coche tous les produits actuellement affichés" class="inline-flex items-center justify-center min-h-[44px] w-full sm:w-auto px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700/50 text-sm font-medium text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                    Tout sélectionner
+                </button>
+                <button type="button" id="deselectAllBtn" title="Retire toute la sélection, y compris les produits masqués par les filtres" class="inline-flex items-center justify-center min-h-[44px] w-full sm:w-auto px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700/50 text-sm font-medium text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                    Tout désélectionner
+                </button>
+                <button type="button" id="exportPdfBtn" class="inline-flex items-center justify-center gap-2 min-h-[44px] w-full sm:w-auto px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold shadow-sm transition-colors">
+                    <i data-lucide="file-down" class="w-4 h-4"></i>
+                    Sortir un PDF de la sélection
+                </button>
+                <span id="selectionCount" aria-live="polite" class="text-xs font-semibold text-gray-500 dark:text-slate-400 sm:ml-auto text-center sm:text-left px-1">Aucun produit sélectionné</span>
+            </div>
             <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse min-w-[900px]">
+                <table class="w-full text-left border-collapse min-w-[960px]">
                     <thead>
                         <tr class="bg-gray-50/80 dark:bg-slate-700/40 text-gray-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-gray-100 dark:border-slate-700">
+                            <th class="py-1 px-1 w-12 text-center">
+                                <label class="inline-flex items-center justify-center w-11 h-11 cursor-pointer" title="Sélectionner les lignes affichées">
+                                    <input type="checkbox" id="selectVisibleHeader" class="touch-check" aria-label="Sélectionner les lignes affichées">
+                                </label>
+                            </th>
                             <th class="py-3.5 px-4 cursor-pointer hover:text-brand-500 transition-colors select-none" onclick="sortTable(0)">
                                 <div class="flex items-center gap-1.5">Rayon <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i></div>
                             </th>
@@ -204,7 +274,7 @@
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-gray-100 dark:divide-slate-700/60 text-sm">
                         <tr>
-                            <td colspan="8" class="py-12 text-center text-gray-400 dark:text-slate-500">
+                            <td colspan="9" class="py-12 text-center text-gray-400 dark:text-slate-500">
                                 Aucun fichier CSV chargé. Veuillez importer vos données ci-dessus.
                             </td>
                         </tr>
@@ -217,6 +287,11 @@
         </div>
 
     </div>
+
+    <div id="pdfPrintSheet" aria-hidden="true"></div>
+
+    <script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Script Application -->
     <script>
@@ -234,6 +309,8 @@
         let filteredData = [];
         let sortDirection = {};
         let selectedCycles = new Set();
+        const selectedProductIds = new Set();
+        let pdfExportBusy = false;
 
         // Ordre strict du PIRE au MEILLEUR statut
         const cyclePriorityOrder = ['NZ', 'TM', 'TZ', 'NN', 'FF', 'FI', 'FR', 'AC'];
@@ -356,6 +433,7 @@
             const idxCycle = findCol(['cycle', 'cycle de vie', 'statut']);
 
             stockData = [];
+            selectedProductIds.clear();
 
             for (let i = 1; i < lines.length; i++) {
                 const row = lines[i].split(sep).map(cell => cleanString(cell.replace(/^"|"$/g, '')));
@@ -372,6 +450,7 @@
 
                 if (produit || rayon) {
                     stockData.push({
+                        _selId: String(i),
                         rayon,
                         produit,
                         txDecote,
@@ -476,10 +555,11 @@
             if (filteredData.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-gray-400 dark:text-slate-500">
+                        <td colspan="9" class="py-12 text-center text-gray-400 dark:text-slate-500">
                             Aucun élément ne correspond à votre recherche.
                         </td>
                     </tr>`;
+                updateSelectionControls();
                 return;
             }
 
@@ -504,9 +584,15 @@
                 }
 
                 const safeProduit = d.produit.replace(/'/g, "\\'");
+                const checked = selectedProductIds.has(d._selId) ? 'checked' : '';
 
                 return `
                     <tr class="hover:bg-gray-50/80 dark:hover:bg-slate-700/30 transition-colors">
+                        <td class="py-1 px-1 text-center">
+                            <label class="inline-flex items-center justify-center w-11 h-11 cursor-pointer">
+                                <input type="checkbox" class="product-select touch-check" value="${d._selId}" ${checked} aria-label="Sélectionner la ligne">
+                            </label>
+                        </td>
                         <td class="py-3 px-4 text-xs font-medium text-gray-500 dark:text-slate-400">${d.rayon}</td>
                         <td class="py-3 px-4 font-medium text-gray-900 dark:text-slate-100">
                             <button onclick="copyRef('${safeProduit}')" class="group/btn text-left flex items-center gap-2 hover:text-brand-500 dark:hover:text-brand-400 transition-colors cursor-pointer" title="Cliquer pour copier le code de référence">
@@ -529,6 +615,7 @@
             }).join('');
 
             lucide.createIcons();
+            updateSelectionControls();
         }
 
         function sortTable(columnIndex) {
@@ -561,6 +648,278 @@
         searchInput.addEventListener('input', applyFilters);
         filterRayon.addEventListener('change', applyFilters);
         filterDecote.addEventListener('change', applyFilters);
+
+        function updateSelectionControls() {
+            const total = selectedProductIds.size;
+            const visibleIds = filteredData.map(d => d._selId);
+            const visibleSelected = visibleIds.filter(id => selectedProductIds.has(id)).length;
+            const hidden = total - visibleSelected;
+            const countEl = document.getElementById('selectionCount');
+            let label = 'Aucun produit sélectionné';
+            if (total === 1) label = '1 sélectionné';
+            else if (total > 1) label = total + ' sélectionnés';
+            if (hidden === 1) label += ' · 1 masqué par les filtres';
+            else if (hidden > 1) label += ' · ' + hidden + ' masqués par les filtres';
+            countEl.textContent = label;
+
+            const headerCb = document.getElementById('selectVisibleHeader');
+            headerCb.disabled = visibleIds.length === 0;
+            headerCb.checked = visibleIds.length > 0 && visibleSelected === visibleIds.length;
+            headerCb.indeterminate = visibleSelected > 0 && visibleSelected < visibleIds.length;
+        }
+
+        function syncVisibleCheckboxes() {
+            document.querySelectorAll('.product-select').forEach(cb => {
+                cb.checked = selectedProductIds.has(cb.value);
+            });
+        }
+
+        function selectAllVisible() {
+            filteredData.forEach(d => selectedProductIds.add(d._selId));
+            syncVisibleCheckboxes();
+            updateSelectionControls();
+        }
+
+        function deselectAllProducts() {
+            selectedProductIds.clear();
+            syncVisibleCheckboxes();
+            updateSelectionControls();
+        }
+
+        tableBody.addEventListener('change', (e) => {
+            const cb = e.target;
+            if (!cb.classList || !cb.classList.contains('product-select')) return;
+            if (cb.checked) selectedProductIds.add(cb.value);
+            else selectedProductIds.delete(cb.value);
+            updateSelectionControls();
+        });
+
+        document.getElementById('selectAllBtn').addEventListener('click', selectAllVisible);
+        document.getElementById('deselectAllBtn').addEventListener('click', deselectAllProducts);
+        document.getElementById('selectVisibleHeader').addEventListener('change', (e) => {
+            if (e.target.checked) selectAllVisible();
+            else {
+                filteredData.forEach(d => selectedProductIds.delete(d._selId));
+                syncVisibleCheckboxes();
+                updateSelectionControls();
+            }
+        });
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function frenchDate(date) {
+            const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+            return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+        }
+
+        function pdfFileName(date) {
+            const pad = (n) => String(n).padStart(2, '0');
+            return 'selection-stock-' + date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + '.pdf';
+        }
+
+        function getSelectedProducts() {
+            const visible = [];
+            const seen = new Set();
+            filteredData.forEach(d => {
+                if (selectedProductIds.has(d._selId)) {
+                    visible.push(d);
+                    seen.add(d._selId);
+                }
+            });
+            const hidden = [];
+            stockData.forEach(d => {
+                if (selectedProductIds.has(d._selId) && !seen.has(d._selId)) hidden.push(d);
+            });
+            return { visible, hidden, all: visible.concat(hidden) };
+        }
+
+        function canBuildPdf() {
+            return !!(window.jspdf && typeof window.jspdf.jsPDF === 'function');
+        }
+
+        function isIos() {
+            return /iPad|iPhone|iPod/i.test(navigator.userAgent)
+                || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        function downloadPdf(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+            showToast('PDF téléchargé.');
+        }
+
+        function deliverPdf(blob, filename) {
+            const file = new File([blob], filename, { type: 'application/pdf' });
+            if (isIos() && navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({ files: [file], title: 'Sélection stock & décotes' }).catch((err) => {
+                    if (err && err.name === 'AbortError') return;
+                    printSelected(getSelectedProducts());
+                });
+                return;
+            }
+            if (isIos()) {
+                printSelected(getSelectedProducts());
+                return;
+            }
+            downloadPdf(blob, filename);
+        }
+
+        function printSelected(selection) {
+            const sheet = document.getElementById('pdfPrintSheet');
+            const now = new Date();
+            const count = selection.all.length;
+            const rows = selection.all.map(d => `
+                <tr>
+                    <td>${escapeHtml(d.rayon)}</td>
+                    <td>${escapeHtml(d.produit)}</td>
+                    <td class="c">${escapeHtml(d.txDecote)}</td>
+                    <td class="r">${escapeHtml(formatMoney(d.decote))}</td>
+                    <td class="r">${escapeHtml(formatMoney(d.stock360))}</td>
+                    <td class="r">${escapeHtml(formatMoney(d.stockFFNN))}</td>
+                    <td class="c">${escapeHtml(d.qte)}</td>
+                    <td class="c">${escapeHtml(d.cycle)}</td>
+                </tr>`).join('');
+            sheet.innerHTML = `
+                <h1>Sélection stock &amp; décotes</h1>
+                <p class="meta">${escapeHtml(frenchDate(now))} · ${count} produit${count > 1 ? 's' : ''}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rayon</th>
+                            <th>Produit</th>
+                            <th>Tx Décote</th>
+                            <th>Décote</th>
+                            <th>Stock 360</th>
+                            <th>Stock FF/NN</th>
+                            <th>Qté Stock</th>
+                            <th>Cycle</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+            document.body.classList.add('printing-selection');
+            const cleanup = () => {
+                document.body.classList.remove('printing-selection');
+                sheet.innerHTML = '';
+                window.removeEventListener('afterprint', cleanup);
+            };
+            window.addEventListener('afterprint', cleanup);
+            window.print();
+        }
+
+        function buildAndDeliverPdf(selection) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            if (typeof doc.autoTable !== 'function') {
+                printSelected(selection);
+                return;
+            }
+            const now = new Date();
+            const count = selection.all.length;
+            doc.setProperties({
+                title: 'Sélection stock & décotes',
+                creator: 'Dashboard Stock & Décotes'
+            });
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text('Sélection stock & décotes', 10, 14);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            doc.text(frenchDate(now), 10, 20);
+            doc.text(count + (count > 1 ? ' produits' : ' produit'), doc.internal.pageSize.getWidth() - 10, 20, { align: 'right' });
+
+            doc.autoTable({
+                startY: 26,
+                head: [['Rayon', 'Produit', 'Tx Décote', 'Décote', 'Stock 360', 'Stock FF/NN', 'Qté Stock', 'Cycle']],
+                body: selection.all.map(d => [
+                    d.rayon || '',
+                    d.produit || '',
+                    d.txDecote || '',
+                    formatMoney(d.decote),
+                    formatMoney(d.stock360),
+                    formatMoney(d.stockFFNN),
+                    String(d.qte),
+                    d.cycle || ''
+                ]),
+                styles: {
+                    font: 'helvetica',
+                    fontSize: 8,
+                    cellPadding: 1.8,
+                    overflow: 'linebreak',
+                    textColor: [30, 41, 59],
+                    lineColor: [226, 232, 240],
+                    lineWidth: 0.1
+                },
+                headStyles: {
+                    fillColor: [37, 99, 235],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    fontSize: 8
+                },
+                columnStyles: {
+                    0: { cellWidth: 38 },
+                    1: { cellWidth: 95 },
+                    2: { halign: 'center', cellWidth: 22 },
+                    3: { halign: 'right', cellWidth: 24 },
+                    4: { halign: 'right', cellWidth: 26 },
+                    5: { halign: 'right', cellWidth: 28 },
+                    6: { halign: 'center', cellWidth: 20 },
+                    7: { halign: 'center', cellWidth: 18 }
+                },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                margin: { top: 16, left: 10, right: 10, bottom: 14 },
+                showHead: 'everyPage'
+            });
+
+            const pages = doc.internal.getNumberOfPages();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            for (let p = 1; p <= pages; p++) {
+                doc.setPage(p);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text('Page ' + p + ' / ' + pages, pageWidth - 10, pageHeight - 8, { align: 'right' });
+            }
+
+            deliverPdf(doc.output('blob'), pdfFileName(now));
+        }
+
+        function exportSelectionPdf() {
+            if (pdfExportBusy) return;
+            const selection = getSelectedProducts();
+            if (selection.all.length === 0) {
+                showToast('Sélectionnez au moins un produit.');
+                return;
+            }
+            pdfExportBusy = true;
+            try {
+                if (!canBuildPdf()) printSelected(selection);
+                else buildAndDeliverPdf(selection);
+            } catch (err) {
+                printSelected(selection);
+            } finally {
+                setTimeout(() => { pdfExportBusy = false; }, 800);
+            }
+        }
+
+        document.getElementById('exportPdfBtn').addEventListener('click', exportSelectionPdf);
+        updateSelectionControls();
     </script>
 </body>
 </html>
